@@ -1,5 +1,5 @@
 services:
-  app:
+  todo:
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -7,3 +7,17 @@ services:
       - "8099:8080"
     volumes:
       - '.:/app'
+  todo_db:
+    image: postgres:15.3
+    volumes:
+      - db:/var/lib/postgresql/data
+    environment:
+        - POSTGRES_USER=db
+        - POSTGRES_PASSWORD=db
+        - POSTGRES_DB=db
+    ports:
+      - "54322:5432"
+    networks:
+      - default
+volumes:
+  db:

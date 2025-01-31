@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := restart
 
-init: docker-down-clear docker-build docker-up
+init: docker-down-clear docker-build copy-configs docker-up
 up: docker-up
 down: docker-down
 restart: down up
@@ -18,7 +18,10 @@ docker-build:
 	docker-compose build
 
 shell:
-	docker-compose exec app su user
+	docker-compose exec todo bash
+
+copy-configs:
+	cp config/config.example.yml config/config.yml
 
 logs:
 	docker-compose logs -f
