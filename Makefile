@@ -18,7 +18,7 @@ docker-build:
 	docker-compose build
 
 shell:
-	docker compose run --rm app su user
+	docker-compose exec app su user
 
-start-app:
-	docker compose run --rm app go run cmd/main.go
+logs:
+	docker-compose logs -f
