@@ -7,10 +7,13 @@ services:
       - "8099:8080"
     volumes:
       - '.:/app'
+    depends_on:
+      - todo_db
   todo_db:
     image: postgres:15.3
     volumes:
       - db:/var/lib/postgresql/data
+      - ./docker/db:/home/db
     environment:
         - POSTGRES_USER=db
         - POSTGRES_PASSWORD=db

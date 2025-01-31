@@ -3,16 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"poymanov/todo/config"
 	"poymanov/todo/internal/healthcheck"
 )
 
 func App() http.Handler {
-	_, err := config.NewConfig()
-
-	if err != nil {
-		panic(err)
-	}
+	//conf := config.NewConfig()
+	//database := db.NewDb(conf)
 
 	router := http.NewServeMux()
 

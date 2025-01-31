@@ -6,11 +6,11 @@ import (
 )
 
 type DB struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	Name     string `yaml:"name"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
+	Host     string `env-required:"true" yaml:"host"`
+	Port     string `env-required:"true" yaml:"port"`
+	Name     string `env-required:"true" yaml:"name"`
+	User     string `env-required:"true" yaml:"user"`
+	Password string `env-required:"true" yaml:"password"`
 }
 
 type Config struct {
@@ -22,11 +22,11 @@ func (db *DB) DbConnectionAsString() string {
 		db.User, db.Password, db.Host, db.Port, db.Name)
 }
 
-func NewConfig() (*Config, error) {
+func NewConfig() *Config {
 	cfg := &Config{}
 	if err := cleanenv.ReadConfig("./config/config.yml", cfg); err != nil {
-		return nil, fmt.Errorf("ошибка загрузки конфигурации: %w", err)
+		panic(fmt.Errorf("ошибка загрузки конфигурации: %w", err))
 	}
 
-	return cfg, nil
+	return cfg
 }
