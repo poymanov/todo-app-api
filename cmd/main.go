@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"poymanov/todo/internal/auth"
 	"poymanov/todo/internal/healthcheck"
 )
 
@@ -13,6 +14,7 @@ func App() http.Handler {
 	router := http.NewServeMux()
 
 	healthcheck.NewHealthCheckHandler(router)
+	auth.NewAuthHandlerHandler(router)
 
 	return router
 }
@@ -25,7 +27,7 @@ func main() {
 		Handler: app,
 	}
 
-	fmt.Println("Сервер запущен")
+	fmt.Println("Server is listening on port 8080")
 	err := server.ListenAndServe()
 
 	if err != nil {
