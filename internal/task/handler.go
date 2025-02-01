@@ -2,6 +2,7 @@ package task
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"net/http"
 	"poymanov/todo/internal/user"
 	"poymanov/todo/pkg/jwt"
@@ -27,6 +28,7 @@ func NewTaskHandler(router *http.ServeMux, deps TaskHandlerDeps) {
 		UserService: deps.UserService,
 	}
 	router.Handle("POST /tasks", middleware.Auth(handler.create(), deps.JWT))
+	router.Handle("POST /tasks/{id}", middleware.Auth(handler.update(), deps.JWT))
 }
 
 func (h *TaskHandler) create() http.HandlerFunc {
@@ -54,6 +56,40 @@ func (h *TaskHandler) create() http.HandlerFunc {
 
 		if err != nil {
 			response.JsonError(w, errors.New(ErrFailedToCreateTask), http.StatusBadRequest)
+		}
+
+		response.NoContent(w)
+	}
+}
+
+func (h *TaskHandler) update() http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		id := req.PathValue("id")
+
+		body, err := request.HandleBody[UpdateTaskRequest](req)
+
+		if err != nil {
+			response.JsonError(w, err, http.StatusUnprocessableEntity)
+			return
+		}
+
+		idAsUuid, err := uuid.Parse(id)
+
+		if err != nil {
+			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
+			return
+		}
+
+		if !h.TaskService.IsExistsById(idAsUuid) {
+			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
+			return
+		}
+
+		_, err = h.TaskService.Update(idAsUuid, body.Description)
+
+		if err != nil {
+			response.JsonError(w, errors.New(ErrFailedToUpdateTask), http.StatusBadRequest)
+			return
 		}
 
 		response.NoContent(w)

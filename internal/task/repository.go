@@ -1,6 +1,8 @@
 package task
 
 import (
+	"errors"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"poymanov/todo/pkg/db"
 )
@@ -25,4 +27,22 @@ func (repo *TaskRepository) Create(task *db.Task) (*db.Task, error) {
 	}
 
 	return task, nil
+}
+
+func (repo *TaskRepository) Update(task *db.Task) (*db.Task, error) {
+	result := repo.Db.Updates(task)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return task, nil
+}
+
+func (repo *TaskRepository) IsExistsById(id uuid.UUID) bool {
+	if err := repo.Db.First(&db.Task{ID: id}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return false
+	}
+
+	return true
 }
