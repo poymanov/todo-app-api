@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := restart
 
-init: docker-down-clear docker-build copy-configs docker-up
+init: docker-down-clear docker-build copy-configs docker-up migrate
 up: docker-up
 down: docker-down
 restart: down up
@@ -22,6 +22,9 @@ shell:
 
 copy-configs:
 	cp config/config.example.yml config/config.yml
+
+migrate:
+	docker-compose exec todo go run migrations/auto.go
 
 logs:
 	docker-compose logs -f
