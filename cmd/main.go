@@ -7,9 +7,10 @@ import (
 	"poymanov/todo/internal/auth"
 	"poymanov/todo/internal/healthcheck"
 	"poymanov/todo/internal/profile"
+	"poymanov/todo/internal/task"
 	"poymanov/todo/internal/user"
 	"poymanov/todo/pkg/db"
-	jwt2 "poymanov/todo/pkg/jwt"
+	"poymanov/todo/pkg/jwt"
 )
 
 func App() http.Handler {
@@ -19,19 +20,22 @@ func App() http.Handler {
 	router := http.NewServeMux()
 
 	// Common
-	jwt := jwt2.NewJWT(conf.Auth.Secret)
+	jwtHelper := jwt.NewJWT(conf.Auth.Secret)
 
 	// Repositories
-	userRepository := user.UserRepository{Db: database}
+	userRepository := user.NewUserRepository(user.UserRepositoryDeps{Db: database})
+	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: database})
 
 	// Services
 	userService := user.NewUserService(user.UserServiceDeps{UserRepository: userRepository})
-	authService := auth.NewAuthService(auth.AuthServiceDeps{UserService: userService, JWT: jwt})
+	authService := auth.NewAuthService(auth.AuthServiceDeps{UserService: userService, JWT: jwtHelper})
+	taskService := task.NewTaskService(task.TaskServiceDeps{TaskRepository: taskRepository})
 
 	// Handlers
 	healthcheck.NewHealthCheckHandler(router)
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{AuthService: authService})
-	profile.NewProfileHandler(router, profile.ProfileHandlerDeps{JWT: jwt, UserService: userService})
+	profile.NewProfileHandler(router, profile.ProfileHandlerDeps{JWT: jwtHelper, UserService: userService})
+	task.NewTaskHandler(router, task.TaskHandlerDeps{JWT: jwtHelper, UserService: userService, TaskService: taskService})
 
 	return router
 }

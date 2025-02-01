@@ -1,19 +1,21 @@
 package user
 
+import "poymanov/todo/pkg/db"
+
 type UserService struct {
-	UserRepository UserRepository
+	UserRepository *UserRepository
 }
 
 type UserServiceDeps struct {
-	UserRepository UserRepository
+	UserRepository *UserRepository
 }
 
 func NewUserService(deps UserServiceDeps) *UserService {
 	return &UserService{UserRepository: deps.UserRepository}
 }
 
-func (s *UserService) Create(name, email, password string) (*User, error) {
-	newUser := NewUser(name, email, password)
+func (s *UserService) Create(name, email, password string) (*db.User, error) {
+	newUser := db.NewUser(name, email, password)
 
 	createdUser, err := s.UserRepository.Create(newUser)
 
@@ -24,7 +26,7 @@ func (s *UserService) Create(name, email, password string) (*User, error) {
 	return createdUser, nil
 }
 
-func (s *UserService) FindByEmail(email string) (*User, error) {
+func (s *UserService) FindByEmail(email string) (*db.User, error) {
 	user, err := s.UserRepository.FindByEmail(email)
 
 	if err != nil {

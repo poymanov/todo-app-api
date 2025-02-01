@@ -1,6 +1,9 @@
 package user
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"poymanov/todo/pkg/db"
+)
 
 type UserRepository struct {
 	Db *gorm.DB
@@ -14,7 +17,7 @@ func NewUserRepository(deps UserRepositoryDeps) *UserRepository {
 	return &UserRepository{Db: deps.Db}
 }
 
-func (repo *UserRepository) Create(user *User) (*User, error) {
+func (repo *UserRepository) Create(user *db.User) (*db.User, error) {
 	result := repo.Db.Create(user)
 
 	if result.Error != nil {
@@ -24,8 +27,8 @@ func (repo *UserRepository) Create(user *User) (*User, error) {
 	return user, nil
 }
 
-func (repo *UserRepository) FindByEmail(email string) (*User, error) {
-	var user User
+func (repo *UserRepository) FindByEmail(email string) (*db.User, error) {
+	var user db.User
 	result := repo.Db.First(&user, "email=?", email)
 
 	if result.Error != nil {

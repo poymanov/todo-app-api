@@ -1,9 +1,8 @@
-package user
+package db
 
 import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"poymanov/todo/internal/task"
 	"time"
 )
 
@@ -15,7 +14,7 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
-	Tasks     []task.Task    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Tasks     []Task         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func NewUser(name, email, password string) *User {
@@ -23,5 +22,20 @@ func NewUser(name, email, password string) *User {
 		Name:     name,
 		Email:    email,
 		Password: password,
+	}
+}
+
+type Task struct {
+	ID          uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primary_key"`
+	UserId      uuid.UUID
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
+}
+
+func NewTask(description string, userId uuid.UUID) *Task {
+	return &Task{
+		UserId: userId, Description: description,
 	}
 }

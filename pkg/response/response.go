@@ -32,3 +32,8 @@ func JsonError(w http.ResponseWriter, errorForResponse error, statusCode int) {
 		panic(err)
 	}
 }
+
+func NoContent(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
+}

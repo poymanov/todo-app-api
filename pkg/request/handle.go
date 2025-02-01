@@ -10,7 +10,7 @@ func HandleBody[T any](request *http.Request) (*T, error) {
 	body, err := decode[T](request.Body)
 
 	if reflect.ValueOf(body).IsZero() {
-		return nil, errors.New("empty request body")
+		return nil, errors.New("wrong request body")
 	}
 
 	if err != nil {
