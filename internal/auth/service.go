@@ -45,3 +45,27 @@ func (s *AuthService) Register(data RegisterData) (string, error) {
 
 	return token, nil
 }
+
+func (s *AuthService) Login(data LoginData) (string, error) {
+	existedUser, _ := s.UserService.FindByEmail(data.Email)
+
+	if existedUser == nil {
+		return "", errors.New(ErrWrongCredentials)
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(existedUser.Password), []byte(data.Password))
+
+	if err != nil {
+		return "", errors.New(ErrWrongCredentials)
+	}
+
+	token, err := s.JWT.Create(jwt.JWTData{
+		Email: existedUser.Email,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}

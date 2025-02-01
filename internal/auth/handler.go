@@ -19,6 +19,7 @@ func NewAuthHandlerHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 		AuthService: deps.AuthService,
 	}
 	router.HandleFunc("POST /auth/register", handler.register())
+	router.HandleFunc("POST /auth/login", handler.login())
 }
 
 func (h *AuthHandler) register() http.HandlerFunc {
@@ -41,6 +42,33 @@ func (h *AuthHandler) register() http.HandlerFunc {
 			return
 		}
 
-		response.Json(w, RegisterResponse{Token: token}, http.StatusOK)
+		response.Json(w, RegisterResponse{Token: token}, http.StatusCreated)
+	}
+}
+
+func (h *AuthHandler) login() http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		body, err := request.HandleBody[LoginRequest](req)
+
+		if err != nil {
+			response.JsonError(w, err, http.StatusUnprocessableEntity)
+			return
+		}
+
+		token, err := h.AuthService.Login(LoginData{
+			Email:    body.Email,
+			Password: body.Password,
+		})
+
+		if err != nil {
+			response.Json(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		res := LoginResponse{
+			Token: token,
+		}
+
+		response.Json(w, res, http.StatusOK)
 	}
 }
