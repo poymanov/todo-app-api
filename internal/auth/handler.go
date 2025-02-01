@@ -6,11 +6,18 @@ import (
 	"poymanov/todo/pkg/response"
 )
 
-type AuthHandler struct {
+type AuthHandlerDeps struct {
+	AuthService *AuthService
 }
 
-func NewAuthHandlerHandler(router *http.ServeMux) {
-	handler := &AuthHandler{}
+type AuthHandler struct {
+	AuthService *AuthService
+}
+
+func NewAuthHandlerHandler(router *http.ServeMux, deps AuthHandlerDeps) {
+	handler := &AuthHandler{
+		AuthService: deps.AuthService,
+	}
 	router.HandleFunc("POST /auth/register", handler.register())
 }
 
@@ -23,6 +30,17 @@ func (h *AuthHandler) register() http.HandlerFunc {
 			return
 		}
 
-		response.Json(w, body, http.StatusOK)
+		token, err := h.AuthService.Register(RegisterData{
+			Name:     body.Name,
+			Email:    body.Email,
+			Password: body.Password,
+		})
+
+		if err != nil {
+			response.JsonError(w, err, http.StatusBadRequest)
+			return
+		}
+
+		response.Json(w, RegisterResponse{Token: token}, http.StatusOK)
 	}
 }

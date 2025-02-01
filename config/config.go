@@ -13,8 +13,13 @@ type DB struct {
 	Password string `env-required:"true" yaml:"password"`
 }
 
+type Auth struct {
+	Secret string `env-required:"true" yaml:"secret"`
+}
+
 type Config struct {
-	DB DB `yaml:"db"`
+	DB   DB   `yaml:"db"`
+	Auth Auth `yaml:"auth"`
 }
 
 func (db *DB) DbConnectionAsString() string {
