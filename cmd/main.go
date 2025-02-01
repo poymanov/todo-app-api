@@ -6,6 +6,7 @@ import (
 	"poymanov/todo/config"
 	"poymanov/todo/internal/auth"
 	"poymanov/todo/internal/healthcheck"
+	"poymanov/todo/internal/profile"
 	"poymanov/todo/internal/user"
 	"poymanov/todo/pkg/db"
 	jwt2 "poymanov/todo/pkg/jwt"
@@ -29,7 +30,8 @@ func App() http.Handler {
 
 	// Handlers
 	healthcheck.NewHealthCheckHandler(router)
-	auth.NewAuthHandlerHandler(router, auth.AuthHandlerDeps{AuthService: authService})
+	auth.NewAuthHandler(router, auth.AuthHandlerDeps{AuthService: authService})
+	profile.NewProfileHandler(router, profile.ProfileHandlerDeps{JWT: jwt, UserService: userService})
 
 	return router
 }
