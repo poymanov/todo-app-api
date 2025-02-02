@@ -28,6 +28,7 @@ func NewTaskHandler(router *http.ServeMux, deps TaskHandlerDeps) {
 		UserService: deps.UserService,
 	}
 	router.Handle("POST /tasks", middleware.Auth(handler.create(), deps.JWT))
+	router.Handle("GET /tasks", middleware.Auth(handler.getAllByUserId(), deps.JWT))
 	router.Handle("PATCH /tasks/{id}", middleware.Auth(handler.update(), deps.JWT))
 	router.Handle("DELETE /tasks/{id}", middleware.Auth(handler.delete(), deps.JWT))
 }
@@ -121,5 +122,36 @@ func (h *TaskHandler) delete() http.HandlerFunc {
 		}
 
 		response.NoContent(w)
+	}
+}
+
+func (h *TaskHandler) getAllByUserId() http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		userEmail, ok := req.Context().Value(middleware.ContextEmailKey).(string)
+
+		if !ok {
+			response.JsonError(w, errors.New(ErrFailedToGetUser), http.StatusBadRequest)
+		}
+
+		existedUser, err := h.UserService.FindByEmail(userEmail)
+
+		if err != nil {
+			response.JsonError(w, errors.New(ErrFailedToGetUser), http.StatusBadRequest)
+			return
+		}
+
+		tasks := h.TaskService.GetAllByUserId(existedUser.ID)
+
+		var tasksResponse = make([]GetAllByUserIdResponse, 0)
+
+		for _, task := range *tasks {
+			tasksResponse = append(tasksResponse, GetAllByUserIdResponse{
+				Id:          task.ID.String(),
+				Description: task.Description,
+				CreatedAt:   task.CreatedAt,
+			})
+		}
+
+		response.Json(w, tasksResponse, http.StatusOK)
 	}
 }

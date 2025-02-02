@@ -56,3 +56,15 @@ func (repo *TaskRepository) IsExistsById(id uuid.UUID) bool {
 
 	return true
 }
+
+func (repo *TaskRepository) GetAllByUserId(id uuid.UUID) *[]db.Task {
+	var tasks []db.Task
+
+	repo.Db.
+		Table("tasks").
+		Where("deleted_at is null and user_id = ?", id).
+		Order("created_at desc").
+		Scan(&tasks)
+
+	return &tasks
+}

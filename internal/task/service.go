@@ -54,3 +54,7 @@ func (s *TaskService) Delete(id uuid.UUID) error {
 func (s *TaskService) IsExistsById(id uuid.UUID) bool {
 	return s.TaskRepository.IsExistsById(id)
 }
+
+func (s *TaskService) GetAllByUserId(id uuid.UUID) *[]db.Task {
+	return s.TaskRepository.GetAllByUserId(id)
+}
