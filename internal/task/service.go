@@ -29,9 +29,21 @@ func (s *TaskService) Create(description string, userId uuid.UUID) (*db.Task, er
 	return createdTask, nil
 }
 
-func (s *TaskService) Update(id uuid.UUID, description string) (*db.Task, error) {
+func (s *TaskService) UpdateDescription(id uuid.UUID, description string) (*db.Task, error) {
 	updatedTask, err := s.TaskRepository.Update(&db.Task{
 		ID: id, Description: description,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedTask, nil
+}
+
+func (s *TaskService) UpdateIsCompleted(id uuid.UUID, isCompleted bool) (*db.Task, error) {
+	updatedTask, err := s.TaskRepository.Update(&db.Task{
+		ID: id, IsCompleted: &isCompleted,
 	})
 
 	if err != nil {

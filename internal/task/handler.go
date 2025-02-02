@@ -29,7 +29,9 @@ func NewTaskHandler(router *http.ServeMux, deps TaskHandlerDeps) {
 	}
 	router.Handle("POST /tasks", middleware.Auth(handler.create(), deps.JWT))
 	router.Handle("GET /tasks", middleware.Auth(handler.getAllByUserId(), deps.JWT))
-	router.Handle("PATCH /tasks/{id}", middleware.Auth(handler.update(), deps.JWT))
+	router.Handle("PATCH /tasks/{id}", middleware.Auth(handler.updateDescription(), deps.JWT))
+	router.Handle("PATCH /tasks/{id}/complete", middleware.Auth(handler.updateIsComplete(true), deps.JWT))
+	router.Handle("PATCH /tasks/{id}/incomplete", middleware.Auth(handler.updateIsComplete(false), deps.JWT))
 	router.Handle("DELETE /tasks/{id}", middleware.Auth(handler.delete(), deps.JWT))
 }
 
@@ -64,7 +66,7 @@ func (h *TaskHandler) create() http.HandlerFunc {
 	}
 }
 
-func (h *TaskHandler) update() http.HandlerFunc {
+func (h *TaskHandler) updateDescription() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		id := req.PathValue("id")
 
@@ -87,7 +89,34 @@ func (h *TaskHandler) update() http.HandlerFunc {
 			return
 		}
 
-		_, err = h.TaskService.Update(idAsUuid, body.Description)
+		_, err = h.TaskService.UpdateDescription(idAsUuid, body.Description)
+
+		if err != nil {
+			response.JsonError(w, errors.New(ErrFailedToUpdateTask), http.StatusBadRequest)
+			return
+		}
+
+		response.NoContent(w)
+	}
+}
+
+func (h *TaskHandler) updateIsComplete(isComplete bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		id := req.PathValue("id")
+
+		idAsUuid, err := uuid.Parse(id)
+
+		if err != nil {
+			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
+			return
+		}
+
+		if !h.TaskService.IsExistsById(idAsUuid) {
+			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
+			return
+		}
+
+		_, err = h.TaskService.UpdateIsCompleted(idAsUuid, isComplete)
 
 		if err != nil {
 			response.JsonError(w, errors.New(ErrFailedToUpdateTask), http.StatusBadRequest)
@@ -148,6 +177,7 @@ func (h *TaskHandler) getAllByUserId() http.HandlerFunc {
 			tasksResponse = append(tasksResponse, GetAllByUserIdResponse{
 				Id:          task.ID.String(),
 				Description: task.Description,
+				IsCompleted: *task.IsCompleted,
 				CreatedAt:   task.CreatedAt,
 			})
 		}
