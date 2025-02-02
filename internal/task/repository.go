@@ -39,6 +39,16 @@ func (repo *TaskRepository) Update(task *db.Task) (*db.Task, error) {
 	return task, nil
 }
 
+func (repo *TaskRepository) Delete(id uuid.UUID) error {
+	result := repo.Db.Delete(&db.Task{}, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func (repo *TaskRepository) IsExistsById(id uuid.UUID) bool {
 	if err := repo.Db.First(&db.Task{ID: id}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return false

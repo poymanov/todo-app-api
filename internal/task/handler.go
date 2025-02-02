@@ -28,7 +28,8 @@ func NewTaskHandler(router *http.ServeMux, deps TaskHandlerDeps) {
 		UserService: deps.UserService,
 	}
 	router.Handle("POST /tasks", middleware.Auth(handler.create(), deps.JWT))
-	router.Handle("POST /tasks/{id}", middleware.Auth(handler.update(), deps.JWT))
+	router.Handle("PATCH /tasks/{id}", middleware.Auth(handler.update(), deps.JWT))
+	router.Handle("DELETE /tasks/{id}", middleware.Auth(handler.delete(), deps.JWT))
 }
 
 func (h *TaskHandler) create() http.HandlerFunc {
@@ -89,6 +90,33 @@ func (h *TaskHandler) update() http.HandlerFunc {
 
 		if err != nil {
 			response.JsonError(w, errors.New(ErrFailedToUpdateTask), http.StatusBadRequest)
+			return
+		}
+
+		response.NoContent(w)
+	}
+}
+
+func (h *TaskHandler) delete() http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		id := req.PathValue("id")
+
+		idAsUuid, err := uuid.Parse(id)
+
+		if err != nil {
+			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
+			return
+		}
+
+		if !h.TaskService.IsExistsById(idAsUuid) {
+			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
+			return
+		}
+
+		err = h.TaskService.Delete(idAsUuid)
+
+		if err != nil {
+			response.JsonError(w, errors.New(ErrFailedToDeleteTask), http.StatusBadRequest)
 			return
 		}
 

@@ -41,6 +41,16 @@ func (s *TaskService) Update(id uuid.UUID, description string) (*db.Task, error)
 	return updatedTask, nil
 }
 
+func (s *TaskService) Delete(id uuid.UUID) error {
+	result := s.TaskRepository.Delete(id)
+
+	if result != nil {
+		return result
+	}
+
+	return nil
+}
+
 func (s *TaskService) IsExistsById(id uuid.UUID) bool {
 	return s.TaskRepository.IsExistsById(id)
 }
