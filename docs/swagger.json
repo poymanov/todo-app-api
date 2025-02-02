@@ -1,0 +1,39 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API приложения для ведения списка дел",
+        "title": "TO-DO App API",
+        "contact": {
+            "name": "Николай Пойманов",
+            "email": "n.poymanov@gmail.com"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8099",
+    "basePath": "/",
+    "paths": {
+        "/healthcheck": {
+            "get": {
+                "description": "Получение статуса работоспособности приложения",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/healthcheck.HealthCheckResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "healthcheck.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

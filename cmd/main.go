@@ -7,12 +7,21 @@ import (
 	"poymanov/todo/internal/auth"
 	"poymanov/todo/internal/healthcheck"
 	"poymanov/todo/internal/profile"
+	"poymanov/todo/internal/swagger"
 	"poymanov/todo/internal/task"
 	"poymanov/todo/internal/user"
 	"poymanov/todo/pkg/db"
 	"poymanov/todo/pkg/jwt"
 )
 
+//	@title			TO-DO App API
+//	@version		1.0
+//	@description	API приложения для ведения списка дел
+//	@contact.name	Николай Пойманов
+//	@contact.email	n.poymanov@gmail.com
+//
+// @host		localhost:8099
+// @BasePath	/
 func App() http.Handler {
 	conf := config.NewConfig()
 	database := db.NewDb(conf)
@@ -36,6 +45,7 @@ func App() http.Handler {
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{AuthService: authService})
 	profile.NewProfileHandler(router, profile.ProfileHandlerDeps{JWT: jwtHelper, UserService: userService})
 	task.NewTaskHandler(router, task.TaskHandlerDeps{JWT: jwtHelper, UserService: userService, TaskService: taskService})
+	swagger.NewSwaggerHandler(router)
 
 	return router
 }

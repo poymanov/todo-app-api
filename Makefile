@@ -28,3 +28,6 @@ migrate:
 
 logs:
 	docker-compose logs -f
+
+generate-swagger:
+	docker-compose exec todo swag i -d cmd,internal/healthcheck -g main.go

@@ -1,0 +1,25 @@
+basePath: /
+definitions:
+  healthcheck.HealthCheckResponse:
+    properties:
+      status:
+        type: string
+    type: object
+host: localhost:8099
+info:
+  contact:
+    email: n.poymanov@gmail.com
+    name: Николай Пойманов
+  description: API приложения для ведения списка дел
+  title: TO-DO App API
+  version: "1.0"
+paths:
+  /healthcheck:
+    get:
+      description: Получение статуса работоспособности приложения
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/healthcheck.HealthCheckResponse'
+swagger: "2.0"
