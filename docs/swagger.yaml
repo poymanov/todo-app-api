@@ -1,9 +1,81 @@
 basePath: /
 definitions:
+  auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  auth.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  auth.RegisterResponse:
+    properties:
+      token:
+        type: string
+    type: object
   healthcheck.HealthCheckResponse:
     properties:
       status:
         type: string
+    type: object
+  profile.Profile:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  task.CreateTaskRequest:
+    properties:
+      description:
+        type: string
+    required:
+    - description
+    type: object
+  task.GetAllByUserIdResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_completed:
+        type: boolean
+    type: object
+  task.UpdateTaskRequest:
+    properties:
+      description:
+        type: string
+    required:
+    - description
     type: object
 host: localhost:8099
 info:
@@ -11,9 +83,59 @@ info:
     email: n.poymanov@gmail.com
     name: Николай Пойманов
   description: API приложения для ведения списка дел
-  title: TO-DO App API
+  title: To-Do App API
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      description: Авторизация пользователя
+      parameters:
+      - description: Данные зарегистрированного  пользователя
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      tags:
+      - auth
+  /auth/register:
+    post:
+      description: Регистрация пользователя
+      parameters:
+      - description: Данные нового пользователя
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      tags:
+      - auth
   /healthcheck:
     get:
       description: Получение статуса работоспособности приложения
@@ -22,4 +144,173 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/healthcheck.HealthCheckResponse'
+      tags:
+      - common
+  /profile:
+    get:
+      description: Получение профиля текущего авторизованного пользователя
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/profile.Profile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - profile
+  /tasks:
+    get:
+      description: Получение списка задач пользователя
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/task.GetAllByUserIdResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      tags:
+      - task
+    post:
+      description: Создание задачи
+      parameters:
+      - description: Данные новой задачи
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/task.CreateTaskRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - task
+  /tasks/{id}:
+    delete:
+      description: Удаление задачи
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - task
+    patch:
+      description: Обновление задачи
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Новые данные для задачи
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/task.UpdateTaskRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - task
+  /tasks/{id}/complete:
+    patch:
+      description: Обновление статуса завершения задачи
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - task
+  /tasks/{id}/incomplete:
+    patch:
+      description: Обновление статуса завершения задачи
+      parameters:
+      - description: ID задачи
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - task
+securityDefinitions:
+  ApiKeyAuth:
+    description: JWT-токен, в формате `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5ydSJ9.QiiLTDNqzID55nlQnYgmminveyKs2kzbwnGCEQqyc1A`
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

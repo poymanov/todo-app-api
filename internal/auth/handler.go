@@ -22,6 +22,13 @@ func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
 	router.HandleFunc("POST /auth/login", handler.login())
 }
 
+// @Description	Регистрация пользователя
+// @Tags			auth
+// @Param			register	body		auth.RegisterRequest	true	"Данные нового пользователя"
+// @Success		201			{object}	auth.RegisterResponse
+// @Failure		400			{object}	response.ErrorResponse
+// @Failure		422			{object}	response.ErrorResponse
+// @Router			/auth/register [post]
 func (h *AuthHandler) register() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, err := request.HandleBody[RegisterRequest](req)
@@ -46,6 +53,13 @@ func (h *AuthHandler) register() http.HandlerFunc {
 	}
 }
 
+// @Description	Авторизация пользователя
+// @Tags			auth
+// @Param			login	body		auth.LoginRequest	true	"Данные зарегистрированного  пользователя"
+// @Success		200		{object}	auth.LoginResponse
+// @Failure		400		{object}	response.ErrorResponse
+// @Failure		422		{object}	response.ErrorResponse
+// @Router			/auth/login [post]
 func (h *AuthHandler) login() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, err := request.HandleBody[LoginRequest](req)

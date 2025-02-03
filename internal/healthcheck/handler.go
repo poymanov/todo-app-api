@@ -13,8 +13,8 @@ func NewHealthCheckHandler(router *http.ServeMux) {
 	router.HandleFunc("GET /healthcheck", handler.CurrentStatus())
 }
 
-// CurrentStatus
 // @Description	Получение статуса работоспособности приложения
+// @Tags			common
 // @Success		200	{object}	healthcheck.HealthCheckResponse
 //
 // @Router			/healthcheck [get]

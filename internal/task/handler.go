@@ -35,6 +35,14 @@ func NewTaskHandler(router *http.ServeMux, deps TaskHandlerDeps) {
 	router.Handle("DELETE /tasks/{id}", middleware.Auth(handler.delete(), deps.JWT))
 }
 
+// @Description	Создание задачи
+// @Tags			task
+// @Param			data	body	task.CreateTaskRequest	true	"Данные новой задачи"
+// @Success		204
+// @Failure		400	{object}	response.ErrorResponse
+// @Failure		422	{object}	response.ErrorResponse
+// @Security		ApiKeyAuth
+// @Router			/tasks [post]
 func (h *TaskHandler) create() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		body, err := request.HandleBody[CreateTaskRequest](req)
@@ -66,6 +74,16 @@ func (h *TaskHandler) create() http.HandlerFunc {
 	}
 }
 
+// @Description	Обновление задачи
+// @Tags			task
+// @Param			id		path	string					true	"ID задачи"
+// @Param			data	body	task.UpdateTaskRequest	true	"Новые данные для задачи"
+// @Success		204
+// @Failure		400	{object}	response.ErrorResponse
+// @Failure		404	{object}	response.ErrorResponse
+// @Failure		422	{object}	response.ErrorResponse
+// @Security		ApiKeyAuth
+// @Router			/tasks/{id} [patch]
 func (h *TaskHandler) updateDescription() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		id := req.PathValue("id")
@@ -100,6 +118,15 @@ func (h *TaskHandler) updateDescription() http.HandlerFunc {
 	}
 }
 
+// @Description	Обновление статуса завершения задачи
+// @Tags			task
+// @Param			id	path	string	true	"ID задачи"
+// @Success		204
+// @Failure		400	{object}	response.ErrorResponse
+// @Failure		404	{object}	response.ErrorResponse
+// @Security		ApiKeyAuth
+// @Router			/tasks/{id}/complete [patch]
+// @Router			/tasks/{id}/incomplete [patch]
 func (h *TaskHandler) updateIsComplete(isComplete bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		id := req.PathValue("id")
@@ -127,6 +154,14 @@ func (h *TaskHandler) updateIsComplete(isComplete bool) http.HandlerFunc {
 	}
 }
 
+// @Description	Удаление задачи
+// @Tags			task
+// @Param			id	path	string	true	"ID задачи"
+// @Success		204
+// @Failure		400	{object}	response.ErrorResponse
+// @Failure		404	{object}	response.ErrorResponse
+// @Security		ApiKeyAuth
+// @Router			/tasks/{id} [delete]
 func (h *TaskHandler) delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		id := req.PathValue("id")
@@ -154,6 +189,11 @@ func (h *TaskHandler) delete() http.HandlerFunc {
 	}
 }
 
+// @Description	Получение списка задач пользователя
+// @Tags			task
+// @Success		200	{array}		task.GetAllByUserIdResponse
+// @Failure		400	{object}	response.ErrorResponse
+// @Router			/tasks [get]
 func (h *TaskHandler) getAllByUserId() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		userEmail, ok := req.Context().Value(middleware.ContextEmailKey).(string)

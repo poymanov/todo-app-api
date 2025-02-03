@@ -25,6 +25,12 @@ func NewProfileHandler(router *http.ServeMux, deps ProfileHandlerDeps) {
 	router.Handle("GET /profile", middleware.Auth(handler.getProfile(), deps.JWT))
 }
 
+// @Description	Получение профиля текущего авторизованного пользователя
+// @Tags			profile
+// @Success		200	{object}	profile.Profile
+// @Failure		400	{object}	response.ErrorResponse
+// @Security		ApiKeyAuth
+// @Router			/profile [get]
 func (h *ProfileHandler) getProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		email, ok := req.Context().Value(middleware.ContextEmailKey).(string)

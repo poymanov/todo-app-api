@@ -14,14 +14,19 @@ import (
 	"poymanov/todo/pkg/jwt"
 )
 
-//	@title			TO-DO App API
-//	@version		1.0
-//	@description	API приложения для ведения списка дел
-//	@contact.name	Николай Пойманов
-//	@contact.email	n.poymanov@gmail.com
+// @title						To-Do App API
+// @version					1.0
+// @description				API приложения для ведения списка дел
+// @contact.name				Николай Пойманов
+// @contact.email				n.poymanov@gmail.com
 //
-// @host		localhost:8099
-// @BasePath	/
+// @host						localhost:8099
+// @BasePath					/
+//
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+//	@description				JWT-токен, в формате `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAdGVzdC5ydSJ9.QiiLTDNqzID55nlQnYgmminveyKs2kzbwnGCEQqyc1A`
 func App() http.Handler {
 	conf := config.NewConfig()
 	database := db.NewDb(conf)
