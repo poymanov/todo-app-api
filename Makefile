@@ -34,3 +34,6 @@ generate-swagger:
 
 format-swagger:
 	docker-compose exec todo swag fmt
+
+test:
+	docker-compose exec todo go test -v ./...
