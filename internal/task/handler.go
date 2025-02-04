@@ -62,6 +62,7 @@ func (h *TaskHandler) create() http.HandlerFunc {
 
 		if existedUser == nil {
 			response.JsonError(w, errors.New(ErrFailedToGetUser), http.StatusBadRequest)
+			return
 		}
 
 		_, err = h.TaskService.Create(body.Description, existedUser.ID)

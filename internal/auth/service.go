@@ -29,6 +29,11 @@ func (s *AuthService) Register(data RegisterData) (string, error) {
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return "", err
+	}
+
 	createdUser, err := s.UserService.Create(data.Name, data.Email, string(hashedPassword))
 
 	if err != nil {

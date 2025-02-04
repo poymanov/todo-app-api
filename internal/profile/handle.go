@@ -43,6 +43,7 @@ func (h *ProfileHandler) getProfile() http.HandlerFunc {
 
 		if existedUser == nil {
 			response.JsonError(w, errors.New(ErrFailedToGetProfile), http.StatusBadRequest)
+			return
 		}
 
 		profileResponse := &Profile{

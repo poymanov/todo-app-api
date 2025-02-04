@@ -17,5 +17,6 @@ RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh 
 USER user
 
 RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.63.4
 
 CMD ["air"]

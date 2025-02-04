@@ -37,3 +37,8 @@ format-swagger:
 
 test:
 	docker-compose exec todo go test -v ./...
+
+lint:
+	docker-compose exec todo golangci-lint run
+
+check: lint test
