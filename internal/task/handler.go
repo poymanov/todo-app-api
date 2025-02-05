@@ -4,35 +4,37 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"net/http"
-	"poymanov/todo/internal/user"
+	"poymanov/todo/internal/service"
 	"poymanov/todo/pkg/jwt"
 	"poymanov/todo/pkg/middleware"
 	"poymanov/todo/pkg/request"
 	"poymanov/todo/pkg/response"
 )
 
-type TaskHandlerDeps struct {
-	TaskService *TaskService
-	UserService *user.UserService
-	JWT         *jwt.JWT
-}
+const (
+	ErrFailedToGetUser    = "failed to get user"
+	ErrFailedToCreateTask = "failed to create task"
+	ErrTaskNotFound       = "task not found"
+	ErrFailedToUpdateTask = "failed to update task"
+	ErrFailedToDeleteTask = "failed to delete task"
+)
 
 type TaskHandler struct {
-	TaskService *TaskService
-	UserService *user.UserService
+	services *service.Services
+	jwt      *jwt.JWT
 }
 
-func NewTaskHandler(router *http.ServeMux, deps TaskHandlerDeps) {
+func NewTaskHandler(router *http.ServeMux, services *service.Services, jwt *jwt.JWT) {
 	handler := &TaskHandler{
-		TaskService: deps.TaskService,
-		UserService: deps.UserService,
+		services: services,
+		jwt:      jwt,
 	}
-	router.Handle("POST /tasks", middleware.Auth(handler.create(), deps.JWT))
-	router.Handle("GET /tasks", middleware.Auth(handler.getAllByUserId(), deps.JWT))
-	router.Handle("PATCH /tasks/{id}", middleware.Auth(handler.updateDescription(), deps.JWT))
-	router.Handle("PATCH /tasks/{id}/complete", middleware.Auth(handler.updateIsComplete(true), deps.JWT))
-	router.Handle("PATCH /tasks/{id}/incomplete", middleware.Auth(handler.updateIsComplete(false), deps.JWT))
-	router.Handle("DELETE /tasks/{id}", middleware.Auth(handler.delete(), deps.JWT))
+	router.Handle("POST /tasks", middleware.Auth(handler.create(), jwt))
+	router.Handle("GET /tasks", middleware.Auth(handler.getAllByUserId(), jwt))
+	router.Handle("PATCH /tasks/{id}", middleware.Auth(handler.updateDescription(), jwt))
+	router.Handle("PATCH /tasks/{id}/complete", middleware.Auth(handler.updateIsComplete(true), jwt))
+	router.Handle("PATCH /tasks/{id}/incomplete", middleware.Auth(handler.updateIsComplete(false), jwt))
+	router.Handle("DELETE /tasks/{id}", middleware.Auth(handler.delete(), jwt))
 }
 
 // @Description	Создание задачи
@@ -58,14 +60,14 @@ func (h *TaskHandler) create() http.HandlerFunc {
 			response.JsonError(w, errors.New(ErrFailedToGetUser), http.StatusBadRequest)
 		}
 
-		existedUser, _ := h.UserService.FindByEmail(userEmail)
+		existedUser, _ := h.services.User.FindByEmail(userEmail)
 
 		if existedUser == nil {
 			response.JsonError(w, errors.New(ErrFailedToGetUser), http.StatusBadRequest)
 			return
 		}
 
-		_, err = h.TaskService.Create(body.Description, existedUser.ID)
+		_, err = h.services.Task.Create(body.Description, existedUser.ID)
 
 		if err != nil {
 			response.JsonError(w, errors.New(ErrFailedToCreateTask), http.StatusBadRequest)
@@ -103,12 +105,12 @@ func (h *TaskHandler) updateDescription() http.HandlerFunc {
 			return
 		}
 
-		if !h.TaskService.IsExistsById(idAsUuid) {
+		if !h.services.Task.IsExistsById(idAsUuid) {
 			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
 			return
 		}
 
-		_, err = h.TaskService.UpdateDescription(idAsUuid, body.Description)
+		_, err = h.services.Task.UpdateDescription(idAsUuid, body.Description)
 
 		if err != nil {
 			response.JsonError(w, errors.New(ErrFailedToUpdateTask), http.StatusBadRequest)
@@ -139,12 +141,12 @@ func (h *TaskHandler) updateIsComplete(isComplete bool) http.HandlerFunc {
 			return
 		}
 
-		if !h.TaskService.IsExistsById(idAsUuid) {
+		if !h.services.Task.IsExistsById(idAsUuid) {
 			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
 			return
 		}
 
-		_, err = h.TaskService.UpdateIsCompleted(idAsUuid, isComplete)
+		_, err = h.services.Task.UpdateIsCompleted(idAsUuid, isComplete)
 
 		if err != nil {
 			response.JsonError(w, errors.New(ErrFailedToUpdateTask), http.StatusBadRequest)
@@ -174,12 +176,12 @@ func (h *TaskHandler) delete() http.HandlerFunc {
 			return
 		}
 
-		if !h.TaskService.IsExistsById(idAsUuid) {
+		if !h.services.Task.IsExistsById(idAsUuid) {
 			response.JsonError(w, errors.New(ErrTaskNotFound), http.StatusNotFound)
 			return
 		}
 
-		err = h.TaskService.Delete(idAsUuid)
+		err = h.services.Task.Delete(idAsUuid)
 
 		if err != nil {
 			response.JsonError(w, errors.New(ErrFailedToDeleteTask), http.StatusBadRequest)
@@ -203,14 +205,14 @@ func (h *TaskHandler) getAllByUserId() http.HandlerFunc {
 			response.JsonError(w, errors.New(ErrFailedToGetUser), http.StatusBadRequest)
 		}
 
-		existedUser, err := h.UserService.FindByEmail(userEmail)
+		existedUser, err := h.services.User.FindByEmail(userEmail)
 
 		if err != nil {
 			response.JsonError(w, errors.New(ErrFailedToGetUser), http.StatusBadRequest)
 			return
 		}
 
-		tasks := h.TaskService.GetAllByUserId(existedUser.ID)
+		tasks := h.services.Task.GetAllByUserId(existedUser.ID)
 
 		var tasksResponse = make([]GetAllByUserIdResponse, 0)
 

@@ -1,26 +1,23 @@
-package task
+package service
 
 import (
 	"github.com/google/uuid"
+	"poymanov/todo/internal/repository"
 	"poymanov/todo/pkg/db"
 )
 
 type TaskService struct {
-	TaskRepository *TaskRepository
+	taskRepo repository.Task
 }
 
-type TaskServiceDeps struct {
-	TaskRepository *TaskRepository
-}
-
-func NewTaskService(deps TaskServiceDeps) *TaskService {
-	return &TaskService{TaskRepository: deps.TaskRepository}
+func NewTaskService(taskRepo repository.Task) *TaskService {
+	return &TaskService{taskRepo: taskRepo}
 }
 
 func (s *TaskService) Create(description string, userId uuid.UUID) (*db.Task, error) {
 	newTask := db.NewTask(description, userId)
 
-	createdTask, err := s.TaskRepository.Create(newTask)
+	createdTask, err := s.taskRepo.Create(newTask)
 
 	if err != nil {
 		return nil, err
@@ -30,7 +27,7 @@ func (s *TaskService) Create(description string, userId uuid.UUID) (*db.Task, er
 }
 
 func (s *TaskService) UpdateDescription(id uuid.UUID, description string) (*db.Task, error) {
-	updatedTask, err := s.TaskRepository.Update(&db.Task{
+	updatedTask, err := s.taskRepo.Update(&db.Task{
 		ID: id, Description: description,
 	})
 
@@ -42,7 +39,7 @@ func (s *TaskService) UpdateDescription(id uuid.UUID, description string) (*db.T
 }
 
 func (s *TaskService) UpdateIsCompleted(id uuid.UUID, isCompleted bool) (*db.Task, error) {
-	updatedTask, err := s.TaskRepository.Update(&db.Task{
+	updatedTask, err := s.taskRepo.Update(&db.Task{
 		ID: id, IsCompleted: &isCompleted,
 	})
 
@@ -54,7 +51,7 @@ func (s *TaskService) UpdateIsCompleted(id uuid.UUID, isCompleted bool) (*db.Tas
 }
 
 func (s *TaskService) Delete(id uuid.UUID) error {
-	result := s.TaskRepository.Delete(id)
+	result := s.taskRepo.Delete(id)
 
 	if result != nil {
 		return result
@@ -64,9 +61,9 @@ func (s *TaskService) Delete(id uuid.UUID) error {
 }
 
 func (s *TaskService) IsExistsById(id uuid.UUID) bool {
-	return s.TaskRepository.IsExistsById(id)
+	return s.taskRepo.IsExistsById(id)
 }
 
 func (s *TaskService) GetAllByUserId(id uuid.UUID) *[]db.Task {
-	return s.TaskRepository.GetAllByUserId(id)
+	return s.taskRepo.GetAllByUserId(id)
 }

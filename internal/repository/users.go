@@ -1,4 +1,4 @@
-package user
+package repository
 
 import (
 	"gorm.io/gorm"
@@ -6,19 +6,15 @@ import (
 )
 
 type UserRepository struct {
-	Db *gorm.DB
+	db *gorm.DB
 }
 
-type UserRepositoryDeps struct {
-	Db *gorm.DB
-}
-
-func NewUserRepository(deps UserRepositoryDeps) *UserRepository {
-	return &UserRepository{Db: deps.Db}
+func NewUserRepository(db *gorm.DB) *UserRepository {
+	return &UserRepository{db}
 }
 
 func (repo *UserRepository) Create(user *db.User) (*db.User, error) {
-	result := repo.Db.Create(user)
+	result := repo.db.Create(user)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -29,7 +25,7 @@ func (repo *UserRepository) Create(user *db.User) (*db.User, error) {
 
 func (repo *UserRepository) FindByEmail(email string) (*db.User, error) {
 	var user db.User
-	result := repo.Db.First(&user, "email=?", email)
+	result := repo.db.First(&user, "email=?", email)
 
 	if result.Error != nil {
 		return nil, result.Error

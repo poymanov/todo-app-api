@@ -1,4 +1,4 @@
-package task
+package repository
 
 import (
 	"errors"
@@ -8,19 +8,15 @@ import (
 )
 
 type TaskRepository struct {
-	Db *gorm.DB
+	db *gorm.DB
 }
 
-type TaskRepositoryDeps struct {
-	Db *gorm.DB
-}
-
-func NewTaskRepository(deps TaskRepositoryDeps) *TaskRepository {
-	return &TaskRepository{Db: deps.Db}
+func NewTaskRepository(db *gorm.DB) *TaskRepository {
+	return &TaskRepository{db}
 }
 
 func (repo *TaskRepository) Create(task *db.Task) (*db.Task, error) {
-	result := repo.Db.Create(task)
+	result := repo.db.Create(task)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -30,7 +26,7 @@ func (repo *TaskRepository) Create(task *db.Task) (*db.Task, error) {
 }
 
 func (repo *TaskRepository) Update(task *db.Task) (*db.Task, error) {
-	result := repo.Db.Updates(task)
+	result := repo.db.Updates(task)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -40,7 +36,7 @@ func (repo *TaskRepository) Update(task *db.Task) (*db.Task, error) {
 }
 
 func (repo *TaskRepository) Delete(id uuid.UUID) error {
-	result := repo.Db.Delete(&db.Task{}, id)
+	result := repo.db.Delete(&db.Task{}, id)
 
 	if result.Error != nil {
 		return result.Error
@@ -50,7 +46,7 @@ func (repo *TaskRepository) Delete(id uuid.UUID) error {
 }
 
 func (repo *TaskRepository) IsExistsById(id uuid.UUID) bool {
-	if err := repo.Db.First(&db.Task{ID: id}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := repo.db.First(&db.Task{ID: id}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return false
 	}
 
@@ -60,7 +56,7 @@ func (repo *TaskRepository) IsExistsById(id uuid.UUID) bool {
 func (repo *TaskRepository) GetAllByUserId(id uuid.UUID) *[]db.Task {
 	var tasks []db.Task
 
-	repo.Db.
+	repo.db.
 		Table("tasks").
 		Where("deleted_at is null and user_id = ?", id).
 		Order("created_at desc").

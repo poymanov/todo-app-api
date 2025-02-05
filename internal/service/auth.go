@@ -1,24 +1,34 @@
-package auth
+package service
 
 import (
 	"errors"
 	"golang.org/x/crypto/bcrypt"
-	"poymanov/todo/internal/user"
 	"poymanov/todo/pkg/jwt"
 )
 
+const (
+	ErrUserExists       = "user exists"
+	ErrWrongCredentials = "wrong email or password"
+)
+
+type RegisterData struct {
+	Name     string
+	Email    string
+	Password string
+}
+
+type LoginData struct {
+	Email    string
+	Password string
+}
+
 type AuthService struct {
-	UserService *user.UserService
+	UserService *UserService
 	JWT         *jwt.JWT
 }
 
-type AuthServiceDeps struct {
-	UserService *user.UserService
-	JWT         *jwt.JWT
-}
-
-func NewAuthService(deps AuthServiceDeps) *AuthService {
-	return &AuthService{UserService: deps.UserService, JWT: deps.JWT}
+func NewAuthService(UserService *UserService, JWT *jwt.JWT) *AuthService {
+	return &AuthService{UserService: UserService, JWT: JWT}
 }
 
 func (s *AuthService) Register(data RegisterData) (string, error) {

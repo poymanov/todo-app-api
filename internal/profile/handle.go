@@ -3,26 +3,31 @@ package profile
 import (
 	"errors"
 	"net/http"
-	"poymanov/todo/internal/user"
+	"poymanov/todo/internal/service"
 	"poymanov/todo/pkg/jwt"
 	"poymanov/todo/pkg/middleware"
 	"poymanov/todo/pkg/response"
 )
 
-type ProfileHandlerDeps struct {
-	UserService *user.UserService
-	JWT         *jwt.JWT
+const ErrFailedToGetProfile = "failed to get profile"
+
+type Profile struct {
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 type ProfileHandler struct {
-	UserService *user.UserService
+	services *service.Services
+	jwt      *jwt.JWT
 }
 
-func NewProfileHandler(router *http.ServeMux, deps ProfileHandlerDeps) {
+func NewProfileHandler(router *http.ServeMux, services *service.Services, jwt *jwt.JWT) {
 	handler := &ProfileHandler{
-		UserService: deps.UserService,
+		services: services,
+		jwt:      jwt,
 	}
-	router.Handle("GET /profile", middleware.Auth(handler.getProfile(), deps.JWT))
+	router.Handle("GET /profile", middleware.Auth(handler.getProfile(), jwt))
 }
 
 // @Description	Получение профиля текущего авторизованного пользователя
@@ -39,7 +44,7 @@ func (h *ProfileHandler) getProfile() http.HandlerFunc {
 			response.JsonError(w, errors.New(ErrFailedToGetProfile), http.StatusBadRequest)
 		}
 
-		existedUser, _ := h.UserService.FindByEmail(email)
+		existedUser, _ := h.services.User.FindByEmail(email)
 
 		if existedUser == nil {
 			response.JsonError(w, errors.New(ErrFailedToGetProfile), http.StatusBadRequest)

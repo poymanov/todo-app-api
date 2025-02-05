@@ -1,11 +1,11 @@
-package user_test
+package repository_test
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
-	"poymanov/todo/internal/user"
+	"poymanov/todo/internal/repository"
 	"poymanov/todo/pkg/db"
 	"poymanov/todo/pkg/helpers"
 	"testing"
@@ -20,7 +20,7 @@ func TestUserRepositoryCreateSuccess(t *testing.T) {
 	mock.ExpectQuery("INSERT").WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(uuid))
 	mock.ExpectCommit()
 
-	userRepository := user.NewUserRepository(user.UserRepositoryDeps{Db: mockedDatabase})
+	userRepository := repository.NewUserRepository(mockedDatabase)
 
 	expectedUser := db.User{Email: faker.Email(), Name: faker.Name()}
 
@@ -40,7 +40,7 @@ func TestUserRepositoryCreateFailedEmailAlreadyExists(t *testing.T) {
 	mock.ExpectQuery("INSERT").WillReturnError(gorm.ErrDuplicatedKey)
 	mock.ExpectRollback()
 
-	userRepository := user.NewUserRepository(user.UserRepositoryDeps{Db: mockedDatabase})
+	userRepository := repository.NewUserRepository(mockedDatabase)
 
 	newUser := db.User{Email: faker.Email(), Name: faker.Name()}
 
@@ -61,7 +61,7 @@ func TestUserRepositoryFindByEmailSuccess(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "email"}).
 			AddRow(faker.UUIDHyphenated(), name, email))
 
-	userRepository := user.NewUserRepository(user.UserRepositoryDeps{Db: mockedDatabase})
+	userRepository := repository.NewUserRepository(mockedDatabase)
 
 	existedUser, err := userRepository.FindByEmail(email)
 
@@ -76,7 +76,7 @@ func TestUserRepositoryFindByEmailFailedNoExists(t *testing.T) {
 
 	mock.ExpectQuery("SELECT").WillReturnError(gorm.ErrRecordNotFound)
 
-	userRepository := user.NewUserRepository(user.UserRepositoryDeps{Db: mockedDatabase})
+	userRepository := repository.NewUserRepository(mockedDatabase)
 
 	existedUser, err := userRepository.FindByEmail(faker.Email())
 

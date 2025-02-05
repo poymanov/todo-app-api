@@ -1,4 +1,4 @@
-package task_test
+package repository_test
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
-	"poymanov/todo/internal/task"
+	"poymanov/todo/internal/repository"
 	"poymanov/todo/pkg/db"
 	"poymanov/todo/pkg/helpers"
 	"testing"
@@ -23,7 +23,7 @@ func TestTaskRepositoryCreateSuccess(t *testing.T) {
 	mock.ExpectQuery("INSERT").WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(taskUuid))
 	mock.ExpectCommit()
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	expectedTask := db.Task{UserId: userUuid, Description: faker.Word()}
 
@@ -44,7 +44,7 @@ func TestTaskRepositoryCreateFailed(t *testing.T) {
 	mock.ExpectQuery("INSERT").WillReturnError(gorm.ErrInvalidValue)
 	mock.ExpectRollback()
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	newUser := db.Task{Description: faker.Word()}
 
@@ -63,7 +63,7 @@ func TestTaskRepositoryUpdateSuccess(t *testing.T) {
 
 	require.NoError(t, err)
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE").WillReturnResult(sqlmock.NewResult(0, 1))
@@ -83,7 +83,7 @@ func TestTaskRepositoryUpdateFailed(t *testing.T) {
 
 	require.NoError(t, err)
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE").WillReturnError(gorm.ErrInvalidValue)
@@ -103,7 +103,7 @@ func TestTaskRepositoryDeleteSuccess(t *testing.T) {
 
 	require.NoError(t, err)
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE").WillReturnResult(sqlmock.NewResult(0, 1))
@@ -121,7 +121,7 @@ func TestTaskRepositoryDeleteFailed(t *testing.T) {
 
 	require.NoError(t, err)
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	mock.ExpectBegin()
 	mock.ExpectExec("UPDATE").WillReturnError(gorm.ErrInvalidValue)
@@ -140,7 +140,7 @@ func TestTaskRepositoryIsExistsByIdExisted(t *testing.T) {
 
 	require.NoError(t, err)
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	mock.ExpectQuery("SELECT").WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(taskId))
 
@@ -155,7 +155,7 @@ func TestTaskRepositoryIsExistsByIdNotExisted(t *testing.T) {
 	taskId, err := uuid.Parse(faker.UUIDHyphenated())
 	require.NoError(t, err)
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	mock.ExpectQuery("SELECT").WillReturnError(gorm.ErrRecordNotFound)
 
@@ -173,7 +173,7 @@ func TestTaskRepositoryGetAllByUserIdSuccess(t *testing.T) {
 	taskId, err := uuid.Parse(faker.UUIDHyphenated())
 	require.NoError(t, err)
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	mock.ExpectQuery("SELECT").WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(taskId))
 
@@ -192,7 +192,7 @@ func TestTaskRepositoryGetAllByUserIdEmpty(t *testing.T) {
 
 	require.NoError(t, err)
 
-	taskRepository := task.NewTaskRepository(task.TaskRepositoryDeps{Db: mockedDatabase})
+	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
 	mock.ExpectQuery("SELECT").WillReturnRows(sqlmock.NewRows([]string{"id"}))
 

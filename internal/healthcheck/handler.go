@@ -5,6 +5,10 @@ import (
 	"poymanov/todo/pkg/response"
 )
 
+type HealthCheckResponse struct {
+	Status string `json:"status"`
+}
+
 type HealthCheckHandler struct {
 }
 

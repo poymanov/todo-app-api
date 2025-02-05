@@ -2,22 +2,36 @@ package auth
 
 import (
 	"net/http"
+	"poymanov/todo/internal/service"
 	"poymanov/todo/pkg/request"
 	"poymanov/todo/pkg/response"
 )
 
-type AuthHandlerDeps struct {
-	AuthService *AuthService
+type RegisterRequest struct {
+	Name     string `json:"name" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
+type RegisterResponse struct {
+	Token string `json:"token"`
 }
 
 type AuthHandler struct {
-	AuthService *AuthService
+	services *service.Services
 }
 
-func NewAuthHandler(router *http.ServeMux, deps AuthHandlerDeps) {
-	handler := &AuthHandler{
-		AuthService: deps.AuthService,
-	}
+func NewAuthHandler(router *http.ServeMux, services *service.Services) {
+	handler := &AuthHandler{services}
 	router.HandleFunc("POST /auth/register", handler.register())
 	router.HandleFunc("POST /auth/login", handler.login())
 }
@@ -38,7 +52,7 @@ func (h *AuthHandler) register() http.HandlerFunc {
 			return
 		}
 
-		token, err := h.AuthService.Register(RegisterData{
+		token, err := h.services.Auth.Register(service.RegisterData{
 			Name:     body.Name,
 			Email:    body.Email,
 			Password: body.Password,
@@ -69,7 +83,7 @@ func (h *AuthHandler) login() http.HandlerFunc {
 			return
 		}
 
-		token, err := h.AuthService.Login(LoginData{
+		token, err := h.services.Auth.Login(service.LoginData{
 			Email:    body.Email,
 			Password: body.Password,
 		})
