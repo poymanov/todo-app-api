@@ -57,8 +57,6 @@ func TestUserRepositoryFindByEmailSuccess(t *testing.T) {
 	email := faker.Email()
 	name := faker.Name()
 
-	mockedDatabase.Create(&db.User{Email: email, Name: name})
-
 	mock.ExpectQuery("SELECT").
 		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "email"}).
 			AddRow(faker.UUIDHyphenated(), name, email))
