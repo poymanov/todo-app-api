@@ -42,3 +42,11 @@ lint:
 	docker-compose exec todo golangci-lint run
 
 check: lint test
+
+generate-repository-mock:
+	docker-compose exec todo mockgen -source=internal/repository/repository.go -destination=internal/repository/mocks/mock.go
+
+generate-service-mock:
+	docker-compose exec todo mockgen -source=internal/service/service.go -destination=internal/service/mocks/mock.go
+
+generate-mock: generate-repository-mock generate-service-mock

@@ -23,11 +23,11 @@ type LoginData struct {
 }
 
 type AuthService struct {
-	UserService *UserService
+	UserService User
 	JWT         *jwt.JWT
 }
 
-func NewAuthService(UserService *UserService, JWT *jwt.JWT) *AuthService {
+func NewAuthService(UserService User, JWT *jwt.JWT) *AuthService {
 	return &AuthService{UserService: UserService, JWT: JWT}
 }
 

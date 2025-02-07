@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestTaskRepositoryCreateSuccess(t *testing.T) {
+func TestTaskRepositoryCreate_Success(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	taskUuid := faker.UUIDHyphenated()
@@ -37,7 +37,7 @@ func TestTaskRepositoryCreateSuccess(t *testing.T) {
 	require.False(t, *createdTask.IsCompleted)
 }
 
-func TestTaskRepositoryCreateFailed(t *testing.T) {
+func TestTaskRepositoryCreate_Failed(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	mock.ExpectBegin()
@@ -55,7 +55,7 @@ func TestTaskRepositoryCreateFailed(t *testing.T) {
 	require.Equal(t, gorm.ErrInvalidValue, err)
 }
 
-func TestTaskRepositoryUpdateSuccess(t *testing.T) {
+func TestTaskRepositoryUpdate_Success(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	taskId, err := uuid.Parse(faker.UUIDHyphenated())
@@ -76,7 +76,7 @@ func TestTaskRepositoryUpdateSuccess(t *testing.T) {
 	require.Equal(t, taskUpdate.Description, newDescription)
 }
 
-func TestTaskRepositoryUpdateFailed(t *testing.T) {
+func TestTaskRepositoryUpdate_Failed(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	taskId, err := uuid.Parse(faker.UUIDHyphenated())
@@ -96,7 +96,7 @@ func TestTaskRepositoryUpdateFailed(t *testing.T) {
 	require.Equal(t, gorm.ErrInvalidValue, err)
 }
 
-func TestTaskRepositoryDeleteSuccess(t *testing.T) {
+func TestTaskRepositoryDelete_Success(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	taskId, err := uuid.Parse(faker.UUIDHyphenated())
@@ -114,7 +114,7 @@ func TestTaskRepositoryDeleteSuccess(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestTaskRepositoryDeleteFailed(t *testing.T) {
+func TestTaskRepositoryDelete_Failed(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	taskId, err := uuid.Parse(faker.UUIDHyphenated())
@@ -133,7 +133,7 @@ func TestTaskRepositoryDeleteFailed(t *testing.T) {
 	require.Equal(t, gorm.ErrInvalidValue, err)
 }
 
-func TestTaskRepositoryIsExistsByIdExisted(t *testing.T) {
+func TestTaskRepositoryIsExistsById_Existed(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	taskId, err := uuid.Parse(faker.UUIDHyphenated())
@@ -149,7 +149,7 @@ func TestTaskRepositoryIsExistsByIdExisted(t *testing.T) {
 	require.True(t, result)
 }
 
-func TestTaskRepositoryIsExistsByIdNotExisted(t *testing.T) {
+func TestTaskRepositoryIsExistsById_NotExisted(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	taskId, err := uuid.Parse(faker.UUIDHyphenated())
@@ -164,7 +164,7 @@ func TestTaskRepositoryIsExistsByIdNotExisted(t *testing.T) {
 	require.False(t, result)
 }
 
-func TestTaskRepositoryGetAllByUserIdSuccess(t *testing.T) {
+func TestTaskRepositoryGetAllByUserId_Success(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	userId, err := uuid.Parse(faker.UUIDHyphenated())
@@ -185,7 +185,7 @@ func TestTaskRepositoryGetAllByUserIdSuccess(t *testing.T) {
 	require.Equal(t, taskId, tasks[0].ID)
 }
 
-func TestTaskRepositoryGetAllByUserIdEmpty(t *testing.T) {
+func TestTaskRepositoryGetAllByUserId_Empty(t *testing.T) {
 	mockedDatabase, mock := helpers.InitMockDatabase()
 
 	userId, err := uuid.Parse(faker.UUIDHyphenated())
