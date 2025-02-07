@@ -5,8 +5,8 @@ import (
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
+	"poymanov/todo/internal/domain"
 	"poymanov/todo/internal/repository"
-	"poymanov/todo/pkg/db"
 	"poymanov/todo/pkg/helpers"
 	"testing"
 )
@@ -22,7 +22,7 @@ func TestUserRepositoryCreateSuccess(t *testing.T) {
 
 	userRepository := repository.NewUserRepository(mockedDatabase)
 
-	expectedUser := db.User{Email: faker.Email(), Name: faker.Name()}
+	expectedUser := domain.User{Email: faker.Email(), Name: faker.Name()}
 
 	createdUser, err := userRepository.Create(&expectedUser)
 
@@ -42,7 +42,7 @@ func TestUserRepositoryCreateFailedEmailAlreadyExists(t *testing.T) {
 
 	userRepository := repository.NewUserRepository(mockedDatabase)
 
-	newUser := db.User{Email: faker.Email(), Name: faker.Name()}
+	newUser := domain.User{Email: faker.Email(), Name: faker.Name()}
 
 	createdUser, err := userRepository.Create(&newUser)
 

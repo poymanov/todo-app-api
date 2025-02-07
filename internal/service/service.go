@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/google/uuid"
+	"poymanov/todo/internal/domain"
 	"poymanov/todo/internal/repository"
-	"poymanov/todo/pkg/db"
 	"poymanov/todo/pkg/jwt"
 )
 
@@ -13,17 +13,17 @@ type Auth interface {
 }
 
 type Task interface {
-	Create(description string, userId uuid.UUID) (*db.Task, error)
-	UpdateDescription(id uuid.UUID, description string) (*db.Task, error)
-	UpdateIsCompleted(id uuid.UUID, isCompleted bool) (*db.Task, error)
+	Create(description string, userId uuid.UUID) (*domain.Task, error)
+	UpdateDescription(id uuid.UUID, description string) (*domain.Task, error)
+	UpdateIsCompleted(id uuid.UUID, isCompleted bool) (*domain.Task, error)
 	Delete(id uuid.UUID) error
 	IsExistsById(id uuid.UUID) bool
-	GetAllByUserId(id uuid.UUID) *[]db.Task
+	GetAllByUserId(id uuid.UUID) *[]domain.Task
 }
 
 type User interface {
-	Create(name, email, password string) (*db.User, error)
-	FindByEmail(email string) (*db.User, error)
+	Create(name, email, password string) (*domain.User, error)
+	FindByEmail(email string) (*domain.User, error)
 }
 
 type Services struct {

@@ -5,9 +5,9 @@ import (
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+	"poymanov/todo/internal/domain"
 	"poymanov/todo/internal/service"
 	mock_service "poymanov/todo/internal/service/mocks"
-	"poymanov/todo/pkg/db"
 	"poymanov/todo/pkg/jwt"
 	"testing"
 )
@@ -15,7 +15,7 @@ import (
 func TestAuthServiceRegister_UserAlreadyExists(t *testing.T) {
 	authService, userService := mockAuthService(t)
 
-	userService.EXPECT().FindByEmail(gomock.Any()).Return(&db.User{}, nil)
+	userService.EXPECT().FindByEmail(gomock.Any()).Return(&domain.User{}, nil)
 
 	token, err := authService.Register(service.RegisterData{})
 
@@ -27,7 +27,7 @@ func TestAuthServiceRegister_Success(t *testing.T) {
 	authService, userService := mockAuthService(t)
 
 	userService.EXPECT().FindByEmail(gomock.Any()).Return(nil, errors.New(faker.Word()))
-	userService.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Return(&db.User{}, nil)
+	userService.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Return(&domain.User{}, nil)
 
 	token, err := authService.Register(service.RegisterData{})
 
@@ -49,7 +49,7 @@ func TestAuthServiceLogin_NotExistedUser(t *testing.T) {
 func TestAuthServiceLogin_WrongPassword(t *testing.T) {
 	authService, userService := mockAuthService(t)
 
-	userService.EXPECT().FindByEmail(gomock.Any()).Return(&db.User{}, nil)
+	userService.EXPECT().FindByEmail(gomock.Any()).Return(&domain.User{}, nil)
 
 	token, err := authService.Login(service.LoginData{})
 
@@ -60,7 +60,7 @@ func TestAuthServiceLogin_WrongPassword(t *testing.T) {
 func TestAuthServiceLogin_Success(t *testing.T) {
 	authService, userService := mockAuthService(t)
 
-	userService.EXPECT().FindByEmail(gomock.Any()).Return(&db.User{
+	userService.EXPECT().FindByEmail(gomock.Any()).Return(&domain.User{
 		Password: "$2a$10$RxUZBWvGvCOXWQvI2QWpeuL6f3aksSdTQtOkG2TglZkqV4jbTGlwm",
 	}, nil)
 

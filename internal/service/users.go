@@ -1,8 +1,8 @@
 package service
 
 import (
+	"poymanov/todo/internal/domain"
 	"poymanov/todo/internal/repository"
-	"poymanov/todo/pkg/db"
 )
 
 type UserService struct {
@@ -13,10 +13,8 @@ func NewUserService(userRepo repository.User) *UserService {
 	return &UserService{userRepo: userRepo}
 }
 
-func (s *UserService) Create(name, email, password string) (*db.User, error) {
-	newUser := db.NewUser(name, email, password)
-
-	createdUser, err := s.userRepo.Create(newUser)
+func (s *UserService) Create(name, email, password string) (*domain.User, error) {
+	createdUser, err := s.userRepo.Create(&domain.User{Name: name, Email: email, Password: password})
 
 	if err != nil {
 		return nil, err
@@ -25,7 +23,7 @@ func (s *UserService) Create(name, email, password string) (*db.User, error) {
 	return createdUser, nil
 }
 
-func (s *UserService) FindByEmail(email string) (*db.User, error) {
+func (s *UserService) FindByEmail(email string) (*domain.User, error) {
 	findUser, err := s.userRepo.FindByEmail(email)
 
 	if err != nil {

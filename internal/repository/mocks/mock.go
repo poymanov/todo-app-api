@@ -10,7 +10,7 @@
 package mock_repository
 
 import (
-	db "poymanov/todo/pkg/db"
+	domain "poymanov/todo/internal/domain"
 	reflect "reflect"
 
 	uuid "github.com/google/uuid"
@@ -42,10 +42,10 @@ func (m *MockTask) EXPECT() *MockTaskMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockTask) Create(task *db.Task) (*db.Task, error) {
+func (m *MockTask) Create(task *domain.Task) (*domain.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", task)
-	ret0, _ := ret[0].(*db.Task)
+	ret0, _ := ret[0].(*domain.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -71,10 +71,10 @@ func (mr *MockTaskMockRecorder) Delete(id any) *gomock.Call {
 }
 
 // GetAllByUserId mocks base method.
-func (m *MockTask) GetAllByUserId(id uuid.UUID) *[]db.Task {
+func (m *MockTask) GetAllByUserId(id uuid.UUID) *[]domain.Task {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllByUserId", id)
-	ret0, _ := ret[0].(*[]db.Task)
+	ret0, _ := ret[0].(*[]domain.Task)
 	return ret0
 }
 
@@ -99,10 +99,10 @@ func (mr *MockTaskMockRecorder) IsExistsById(id any) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockTask) Update(task *db.Task) (*db.Task, error) {
+func (m *MockTask) Update(task *domain.Task) (*domain.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", task)
-	ret0, _ := ret[0].(*db.Task)
+	ret0, _ := ret[0].(*domain.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -138,10 +138,10 @@ func (m *MockUser) EXPECT() *MockUserMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUser) Create(user *db.User) (*db.User, error) {
+func (m *MockUser) Create(user *domain.User) (*domain.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", user)
-	ret0, _ := ret[0].(*db.User)
+	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -153,10 +153,10 @@ func (mr *MockUserMockRecorder) Create(user any) *gomock.Call {
 }
 
 // FindByEmail mocks base method.
-func (m *MockUser) FindByEmail(email string) (*db.User, error) {
+func (m *MockUser) FindByEmail(email string) (*domain.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByEmail", email)
-	ret0, _ := ret[0].(*db.User)
+	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

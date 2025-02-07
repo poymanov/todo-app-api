@@ -5,9 +5,9 @@ import (
 	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+	"poymanov/todo/internal/domain"
 	mock_repository "poymanov/todo/internal/repository/mocks"
 	"poymanov/todo/internal/service"
-	"poymanov/todo/pkg/db"
 	"testing"
 )
 
@@ -25,7 +25,7 @@ func TestUserServiceCreate_Failed(t *testing.T) {
 func TestUserServiceCreate_Success(t *testing.T) {
 	userService, userRepo := mockUserService(t)
 
-	userData := db.User{Name: faker.Name(), Email: faker.Email()}
+	userData := domain.User{Name: faker.Name(), Email: faker.Email()}
 
 	userRepo.EXPECT().Create(gomock.Any()).Return(&userData, nil)
 
@@ -51,7 +51,7 @@ func TestUserServiceFindByEmail_Failed(t *testing.T) {
 func TestUserServiceFindByEmail_Success(t *testing.T) {
 	userService, userRepo := mockUserService(t)
 
-	userData := db.User{Name: faker.Name(), Email: faker.Email()}
+	userData := domain.User{Name: faker.Name(), Email: faker.Email()}
 
 	userRepo.EXPECT().FindByEmail(gomock.Any()).Return(&userData, nil)
 

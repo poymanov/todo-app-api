@@ -2,7 +2,7 @@ package repository
 
 import (
 	"gorm.io/gorm"
-	"poymanov/todo/pkg/db"
+	"poymanov/todo/internal/domain"
 )
 
 type UserRepository struct {
@@ -13,7 +13,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db}
 }
 
-func (repo *UserRepository) Create(user *db.User) (*db.User, error) {
+func (repo *UserRepository) Create(user *domain.User) (*domain.User, error) {
 	result := repo.db.Create(user)
 
 	if result.Error != nil {
@@ -23,8 +23,8 @@ func (repo *UserRepository) Create(user *db.User) (*db.User, error) {
 	return user, nil
 }
 
-func (repo *UserRepository) FindByEmail(email string) (*db.User, error) {
-	var user db.User
+func (repo *UserRepository) FindByEmail(email string) (*domain.User, error) {
+	var user domain.User
 	result := repo.db.First(&user, "email=?", email)
 
 	if result.Error != nil {

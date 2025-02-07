@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
+	"poymanov/todo/internal/domain"
 	"poymanov/todo/internal/repository"
-	"poymanov/todo/pkg/db"
 	"poymanov/todo/pkg/helpers"
 	"testing"
 )
@@ -25,7 +25,7 @@ func TestTaskRepositoryCreate_Success(t *testing.T) {
 
 	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
-	expectedTask := db.Task{UserId: userUuid, Description: faker.Word()}
+	expectedTask := domain.Task{UserId: userUuid, Description: faker.Word()}
 
 	createdTask, err := taskRepository.Create(&expectedTask)
 
@@ -46,7 +46,7 @@ func TestTaskRepositoryCreate_Failed(t *testing.T) {
 
 	taskRepository := repository.NewTaskRepository(mockedDatabase)
 
-	newUser := db.Task{Description: faker.Word()}
+	newUser := domain.Task{Description: faker.Word()}
 
 	createdUser, err := taskRepository.Create(&newUser)
 
@@ -69,7 +69,7 @@ func TestTaskRepositoryUpdate_Success(t *testing.T) {
 	mock.ExpectExec("UPDATE").WillReturnResult(sqlmock.NewResult(0, 1))
 	mock.ExpectCommit()
 
-	taskUpdate, err := taskRepository.Update(&db.Task{ID: taskId, Description: newDescription})
+	taskUpdate, err := taskRepository.Update(&domain.Task{ID: taskId, Description: newDescription})
 
 	require.NoError(t, err)
 	require.Equal(t, taskUpdate.ID, taskId)
@@ -89,7 +89,7 @@ func TestTaskRepositoryUpdate_Failed(t *testing.T) {
 	mock.ExpectExec("UPDATE").WillReturnError(gorm.ErrInvalidValue)
 	mock.ExpectRollback()
 
-	taskUpdate, err := taskRepository.Update(&db.Task{ID: taskId, Description: faker.Word()})
+	taskUpdate, err := taskRepository.Update(&domain.Task{ID: taskId, Description: faker.Word()})
 
 	require.Nil(t, taskUpdate)
 	require.Error(t, err)
@@ -179,7 +179,7 @@ func TestTaskRepositoryGetAllByUserId_Success(t *testing.T) {
 
 	result := taskRepository.GetAllByUserId(userId)
 
-	require.IsType(t, &[]db.Task{}, result)
+	require.IsType(t, &[]domain.Task{}, result)
 	require.NotEmpty(t, result)
 	tasks := *result
 	require.Equal(t, taskId, tasks[0].ID)
@@ -198,6 +198,6 @@ func TestTaskRepositoryGetAllByUserId_Empty(t *testing.T) {
 
 	result := taskRepository.GetAllByUserId(userId)
 
-	require.IsType(t, &[]db.Task{}, result)
+	require.IsType(t, &[]domain.Task{}, result)
 	require.Empty(t, result)
 }

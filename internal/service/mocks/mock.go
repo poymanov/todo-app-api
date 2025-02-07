@@ -10,8 +10,8 @@
 package mock_service
 
 import (
+	domain "poymanov/todo/internal/domain"
 	service "poymanov/todo/internal/service"
-	db "poymanov/todo/pkg/db"
 	reflect "reflect"
 
 	uuid "github.com/google/uuid"
@@ -97,10 +97,10 @@ func (m *MockTask) EXPECT() *MockTaskMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockTask) Create(description string, userId uuid.UUID) (*db.Task, error) {
+func (m *MockTask) Create(description string, userId uuid.UUID) (*domain.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", description, userId)
-	ret0, _ := ret[0].(*db.Task)
+	ret0, _ := ret[0].(*domain.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -126,10 +126,10 @@ func (mr *MockTaskMockRecorder) Delete(id any) *gomock.Call {
 }
 
 // GetAllByUserId mocks base method.
-func (m *MockTask) GetAllByUserId(id uuid.UUID) *[]db.Task {
+func (m *MockTask) GetAllByUserId(id uuid.UUID) *[]domain.Task {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllByUserId", id)
-	ret0, _ := ret[0].(*[]db.Task)
+	ret0, _ := ret[0].(*[]domain.Task)
 	return ret0
 }
 
@@ -154,10 +154,10 @@ func (mr *MockTaskMockRecorder) IsExistsById(id any) *gomock.Call {
 }
 
 // UpdateDescription mocks base method.
-func (m *MockTask) UpdateDescription(id uuid.UUID, description string) (*db.Task, error) {
+func (m *MockTask) UpdateDescription(id uuid.UUID, description string) (*domain.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateDescription", id, description)
-	ret0, _ := ret[0].(*db.Task)
+	ret0, _ := ret[0].(*domain.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -169,10 +169,10 @@ func (mr *MockTaskMockRecorder) UpdateDescription(id, description any) *gomock.C
 }
 
 // UpdateIsCompleted mocks base method.
-func (m *MockTask) UpdateIsCompleted(id uuid.UUID, isCompleted bool) (*db.Task, error) {
+func (m *MockTask) UpdateIsCompleted(id uuid.UUID, isCompleted bool) (*domain.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateIsCompleted", id, isCompleted)
-	ret0, _ := ret[0].(*db.Task)
+	ret0, _ := ret[0].(*domain.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -208,10 +208,10 @@ func (m *MockUser) EXPECT() *MockUserMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUser) Create(name, email, password string) (*db.User, error) {
+func (m *MockUser) Create(name, email, password string) (*domain.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", name, email, password)
-	ret0, _ := ret[0].(*db.User)
+	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -223,10 +223,10 @@ func (mr *MockUserMockRecorder) Create(name, email, password any) *gomock.Call {
 }
 
 // FindByEmail mocks base method.
-func (m *MockUser) FindByEmail(email string) (*db.User, error) {
+func (m *MockUser) FindByEmail(email string) (*domain.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByEmail", email)
-	ret0, _ := ret[0].(*db.User)
+	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

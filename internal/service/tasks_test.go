@@ -6,9 +6,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+	"poymanov/todo/internal/domain"
 	mock_repository "poymanov/todo/internal/repository/mocks"
 	"poymanov/todo/internal/service"
-	"poymanov/todo/pkg/db"
 	"testing"
 )
 
@@ -32,7 +32,7 @@ func TestTaskServiceCreate_Success(t *testing.T) {
 	userId, err := uuid.Parse(faker.UUIDHyphenated())
 	require.NoError(t, err)
 
-	taskData := db.Task{Description: faker.Word(), UserId: userId}
+	taskData := domain.Task{Description: faker.Word(), UserId: userId}
 
 	taskRepo.EXPECT().Create(gomock.Any()).Return(&taskData, nil)
 
@@ -65,7 +65,7 @@ func TestTaskServiceUpdateDescription_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	newDescription := faker.Word()
-	taskData := db.Task{ID: taskId, Description: newDescription}
+	taskData := domain.Task{ID: taskId, Description: newDescription}
 
 	taskRepo.EXPECT().Update(gomock.Any()).Return(&taskData, nil)
 
@@ -98,7 +98,7 @@ func TestTaskServiceUpdateIsCompleted_Completed(t *testing.T) {
 
 	isCompleted := true
 
-	taskData := db.Task{ID: taskId, IsCompleted: &isCompleted}
+	taskData := domain.Task{ID: taskId, IsCompleted: &isCompleted}
 
 	taskRepo.EXPECT().Update(gomock.Any()).Return(&taskData, nil)
 
@@ -117,7 +117,7 @@ func TestTaskServiceUpdateIsCompleted_NotCompleted(t *testing.T) {
 
 	isCompleted := false
 
-	taskData := db.Task{ID: taskId, IsCompleted: &isCompleted}
+	taskData := domain.Task{ID: taskId, IsCompleted: &isCompleted}
 
 	taskRepo.EXPECT().Update(gomock.Any()).Return(&taskData, nil)
 
@@ -186,7 +186,7 @@ func TestTaskServiceGetAllByUserId_Empty(t *testing.T) {
 	userId, err := uuid.Parse(faker.UUIDHyphenated())
 	require.NoError(t, err)
 
-	taskRepo.EXPECT().GetAllByUserId(gomock.Any()).Return(&[]db.Task{})
+	taskRepo.EXPECT().GetAllByUserId(gomock.Any()).Return(&[]domain.Task{})
 
 	tasks := taskService.GetAllByUserId(userId)
 
@@ -199,7 +199,7 @@ func TestTaskServiceGetAllByUserId_Success(t *testing.T) {
 	userId, err := uuid.Parse(faker.UUIDHyphenated())
 	require.NoError(t, err)
 
-	taskRepo.EXPECT().GetAllByUserId(gomock.Any()).Return(&[]db.Task{{}})
+	taskRepo.EXPECT().GetAllByUserId(gomock.Any()).Return(&[]domain.Task{{}})
 
 	tasks := taskService.GetAllByUserId(userId)
 

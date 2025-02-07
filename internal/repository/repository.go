@@ -3,20 +3,20 @@ package repository
 import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"poymanov/todo/pkg/db"
+	"poymanov/todo/internal/domain"
 )
 
 type Task interface {
-	Create(task *db.Task) (*db.Task, error)
-	Update(task *db.Task) (*db.Task, error)
+	Create(task *domain.Task) (*domain.Task, error)
+	Update(task *domain.Task) (*domain.Task, error)
 	Delete(id uuid.UUID) error
 	IsExistsById(id uuid.UUID) bool
-	GetAllByUserId(id uuid.UUID) *[]db.Task
+	GetAllByUserId(id uuid.UUID) *[]domain.Task
 }
 
 type User interface {
-	Create(user *db.User) (*db.User, error)
-	FindByEmail(email string) (*db.User, error)
+	Create(user *domain.User) (*domain.User, error)
+	FindByEmail(email string) (*domain.User, error)
 }
 
 type Repositories struct {
