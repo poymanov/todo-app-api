@@ -30,7 +30,7 @@ logs:
 	docker-compose logs -f
 
 generate-swagger:
-	docker-compose exec todo swag i -d cmd/app,internal/healthcheck,internal/profile,internal/auth,internal/task,pkg/response -g main.go
+	docker-compose exec todo swag i -g internal/app/app.go
 
 format-swagger:
 	docker-compose exec todo swag fmt

@@ -31,7 +31,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginRequest"
+                            "$ref": "#/definitions/v1.LoginRequest"
                         }
                     }
                 ],
@@ -39,7 +39,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginResponse"
+                            "$ref": "#/definitions/v1.LoginResponse"
                         }
                     },
                     "400": {
@@ -70,7 +70,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.RegisterRequest"
+                            "$ref": "#/definitions/v1.RegisterRequest"
                         }
                     }
                 ],
@@ -78,7 +78,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/auth.RegisterResponse"
+                            "$ref": "#/definitions/v1.RegisterResponse"
                         }
                     },
                     "400": {
@@ -106,7 +106,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/healthcheck.HealthCheckResponse"
+                            "$ref": "#/definitions/http.HealthCheckResponse"
                         }
                     }
                 }
@@ -127,7 +127,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/profile.Profile"
+                            "$ref": "#/definitions/v1.Profile"
                         }
                     },
                     "400": {
@@ -151,7 +151,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/task.GetAllByUserIdResponse"
+                                "$ref": "#/definitions/v1.GetAllByUserIdResponse"
                             }
                         }
                     },
@@ -180,7 +180,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/task.CreateTaskRequest"
+                            "$ref": "#/definitions/v1.CreateTaskRequest"
                         }
                     }
                 ],
@@ -265,7 +265,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/task.UpdateTaskRequest"
+                            "$ref": "#/definitions/v1.UpdateTaskRequest"
                         }
                     }
                 ],
@@ -374,7 +374,51 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.LoginRequest": {
+        "http.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.CreateTaskRequest": {
+            "type": "object",
+            "required": [
+                "description"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.GetAllByUserIdResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_completed": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "v1.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -389,7 +433,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.LoginResponse": {
+        "v1.LoginResponse": {
             "type": "object",
             "properties": {
                 "token": {
@@ -397,7 +441,21 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.RegisterRequest": {
+        "v1.Profile": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.RegisterRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -416,7 +474,7 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.RegisterResponse": {
+        "v1.RegisterResponse": {
             "type": "object",
             "properties": {
                 "token": {
@@ -424,65 +482,7 @@ const docTemplate = `{
                 }
             }
         },
-        "healthcheck.HealthCheckResponse": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "profile.Profile": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "task.CreateTaskRequest": {
-            "type": "object",
-            "required": [
-                "description"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                }
-            }
-        },
-        "task.GetAllByUserIdResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_completed": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "task.UpdateTaskRequest": {
+        "v1.UpdateTaskRequest": {
             "type": "object",
             "required": [
                 "description"
@@ -508,7 +508,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8099",
-	BasePath:         "/",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "To-Do App API",
 	Description:      "API приложения для ведения списка дел",

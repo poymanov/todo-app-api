@@ -10,7 +10,7 @@
         "version": "1.0"
     },
     "host": "localhost:8099",
-    "basePath": "/",
+    "basePath": "/api/v1",
     "paths": {
         "/auth/login": {
             "post": {
@@ -25,7 +25,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginRequest"
+                            "$ref": "#/definitions/v1.LoginRequest"
                         }
                     }
                 ],
@@ -33,7 +33,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginResponse"
+                            "$ref": "#/definitions/v1.LoginResponse"
                         }
                     },
                     "400": {
@@ -64,7 +64,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.RegisterRequest"
+                            "$ref": "#/definitions/v1.RegisterRequest"
                         }
                     }
                 ],
@@ -72,7 +72,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/auth.RegisterResponse"
+                            "$ref": "#/definitions/v1.RegisterResponse"
                         }
                     },
                     "400": {
@@ -100,7 +100,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/healthcheck.HealthCheckResponse"
+                            "$ref": "#/definitions/http.HealthCheckResponse"
                         }
                     }
                 }
@@ -121,7 +121,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/profile.Profile"
+                            "$ref": "#/definitions/v1.Profile"
                         }
                     },
                     "400": {
@@ -145,7 +145,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/task.GetAllByUserIdResponse"
+                                "$ref": "#/definitions/v1.GetAllByUserIdResponse"
                             }
                         }
                     },
@@ -174,7 +174,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/task.CreateTaskRequest"
+                            "$ref": "#/definitions/v1.CreateTaskRequest"
                         }
                     }
                 ],
@@ -259,7 +259,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/task.UpdateTaskRequest"
+                            "$ref": "#/definitions/v1.UpdateTaskRequest"
                         }
                     }
                 ],
@@ -368,7 +368,51 @@
         }
     },
     "definitions": {
-        "auth.LoginRequest": {
+        "http.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.CreateTaskRequest": {
+            "type": "object",
+            "required": [
+                "description"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.GetAllByUserIdResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_completed": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "v1.LoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -383,7 +427,7 @@
                 }
             }
         },
-        "auth.LoginResponse": {
+        "v1.LoginResponse": {
             "type": "object",
             "properties": {
                 "token": {
@@ -391,7 +435,21 @@
                 }
             }
         },
-        "auth.RegisterRequest": {
+        "v1.Profile": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.RegisterRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -410,7 +468,7 @@
                 }
             }
         },
-        "auth.RegisterResponse": {
+        "v1.RegisterResponse": {
             "type": "object",
             "properties": {
                 "token": {
@@ -418,65 +476,7 @@
                 }
             }
         },
-        "healthcheck.HealthCheckResponse": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "profile.Profile": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "response.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "task.CreateTaskRequest": {
-            "type": "object",
-            "required": [
-                "description"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                }
-            }
-        },
-        "task.GetAllByUserIdResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_completed": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "task.UpdateTaskRequest": {
+        "v1.UpdateTaskRequest": {
             "type": "object",
             "required": [
                 "description"
