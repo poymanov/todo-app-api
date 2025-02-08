@@ -17,11 +17,11 @@ const (
 )
 
 type CreateTaskRequest struct {
-	Description string `json:"description" validate:"required"`
+	Description string `json:"description" binding:"required"`
 }
 
 type UpdateTaskRequest struct {
-	Description string `json:"description" validate:"required"`
+	Description string `json:"description" binding:"required"`
 }
 
 type GetAllByUserIdResponse struct {
