@@ -21,10 +21,10 @@ shell:
 	docker-compose exec todo bash
 
 copy-configs:
-	cp config/config.example.yml config/config.yml
+	cp config/config.example.yml config/config.yml && cp .env.example .env
 
 migrate:
-	docker-compose exec todo go run cmd/migrator/migrator.go
+	docker-compose exec todo goose up
 
 logs:
 	docker-compose logs -f

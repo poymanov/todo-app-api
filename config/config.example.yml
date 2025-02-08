@@ -1,7 +1,7 @@
 db:
-  user: 'user'
-  password: 'password'
-  host: 'localhost'
+  user: 'db'
+  password: 'db'
+  host: 'todo_db'
   port: '5432'
   name: 'db'
 auth:

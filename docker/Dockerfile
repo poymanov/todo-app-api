@@ -19,5 +19,6 @@ USER user
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.63.4
 RUN go install go.uber.org/mock/mockgen@latest
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
 CMD ["air"]
