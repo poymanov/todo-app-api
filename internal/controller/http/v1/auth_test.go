@@ -2,9 +2,7 @@ package v1
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-faker/faker/v4"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"net/http"
@@ -14,43 +12,69 @@ import (
 	"testing"
 )
 
-func TestAuthRegister_RequestBodyValidaton(t *testing.T) {
+func TestAuthRegister(t *testing.T) {
 	testCases := []struct {
-		name     string
-		body     string
-		response string
+		name         string
+		body         string
+		response     string
+		statusCode   int
+		mockFunction func(authService *mock_service.MockAuth)
 	}{
 		{
-			name:     "Empty",
-			body:     ``,
-			response: `{"message":"EOF"}`,
+			name:         "Empty",
+			body:         ``,
+			response:     `{"message":"EOF"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
 		},
 		{
-			name:     "Missing name",
-			body:     `{"email": "test@test.com", "password": "test"}`,
-			response: `{"message":"Key: 'RegisterRequest.Name' Error:Field validation for 'Name' failed on the 'required' tag"}`,
+			name:         "Missing name",
+			body:         `{"email": "test@test.com", "password": "test"}`,
+			response:     `{"message":"Key: 'RegisterRequest.Name' Error:Field validation for 'Name' failed on the 'required' tag"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
 		},
 		{
-			name:     "Missing email",
-			body:     `{"name": "test", "password": "test"}`,
-			response: `{"message":"Key: 'RegisterRequest.Email' Error:Field validation for 'Email' failed on the 'required' tag"}`,
+			name:         "Missing email",
+			body:         `{"name": "test", "password": "test"}`,
+			response:     `{"message":"Key: 'RegisterRequest.Email' Error:Field validation for 'Email' failed on the 'required' tag"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
 		},
 		{
-			name:     "Wrong email",
-			body:     `{"name": "test", "email": "test" , "password": "test"}`,
-			response: `{"message":"Key: 'RegisterRequest.Email' Error:Field validation for 'Email' failed on the 'email' tag"}`,
+			name:         "Wrong email",
+			body:         `{"name": "test", "email": "test" , "password": "test"}`,
+			response:     `{"message":"Key: 'RegisterRequest.Email' Error:Field validation for 'Email' failed on the 'email' tag"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
 		},
 		{
-			name:     "Missing password",
-			body:     `{"name": "test", "email": "test@test.com"}`,
-			response: `{"message":"Key: 'RegisterRequest.Password' Error:Field validation for 'Password' failed on the 'required' tag"}`,
+			name:         "Missing password",
+			body:         `{"name": "test", "email": "test@test.com"}`,
+			response:     `{"message":"Key: 'RegisterRequest.Password' Error:Field validation for 'Password' failed on the 'required' tag"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
+		},
+		{
+			name:       "Success",
+			body:       `{"name": "test","email": "test@test.com", "password": "test"}`,
+			response:   `{"token":"token"}`,
+			statusCode: http.StatusOK,
+			mockFunction: func(authService *mock_service.MockAuth) {
+				authService.EXPECT().Register(gomock.Any()).Return("token", nil).AnyTimes()
+			},
 		},
 	}
 
-	handler := Handler{services: &service.Services{}}
+	c := gomock.NewController(t)
+	defer c.Finish()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			authService := mock_service.NewMockAuth(c)
+			tc.mockFunction(authService)
+			handler := Handler{services: &service.Services{Auth: authService}}
+
 			r := gin.New()
 			r.POST("/auth/register", handler.register)
 
@@ -58,69 +82,68 @@ func TestAuthRegister_RequestBodyValidaton(t *testing.T) {
 			req := httptest.NewRequest("POST", "/auth/register", bytes.NewBufferString(tc.body))
 			r.ServeHTTP(w, req)
 
-			require.Equal(t, w.Code, http.StatusUnprocessableEntity)
+			require.Equal(t, w.Code, tc.statusCode)
 			require.Equal(t, tc.response, w.Body.String())
 		})
 	}
 }
 
-func TestAuthRegister_Success(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-
-	token := faker.Jwt()
-
-	authService := mock_service.NewMockAuth(c)
-	authService.EXPECT().Register(gomock.Any()).Return(token, nil).AnyTimes()
-	handler := Handler{services: &service.Services{Auth: authService}}
-
-	r := gin.New()
-	r.POST("/auth/register", handler.register)
-
-	requestBody := `{"name": "test","email": "test@test.com", "password": "test"}`
-
-	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/auth/register", bytes.NewBufferString(requestBody))
-	r.ServeHTTP(w, req)
-
-	response := fmt.Sprintf(`{"token":"%s"}`, token)
-
-	require.Equal(t, w.Code, http.StatusOK)
-	require.Equal(t, response, w.Body.String())
-}
-
-func TestAuthLogin_RequestBodyValidaton(t *testing.T) {
+func TestAuthLogin(t *testing.T) {
 	testCases := []struct {
-		name     string
-		body     string
-		response string
+		name         string
+		body         string
+		response     string
+		statusCode   int
+		mockFunction func(authService *mock_service.MockAuth)
 	}{
 		{
-			name:     "Empty",
-			body:     ``,
-			response: `{"message":"EOF"}`,
+			name:         "Empty",
+			body:         ``,
+			response:     `{"message":"EOF"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
 		},
 		{
-			name:     "Missing email",
-			body:     `{"name": "test", "password": "test"}`,
-			response: `{"message":"Key: 'LoginRequest.Email' Error:Field validation for 'Email' failed on the 'required' tag"}`,
+			name:         "Missing email",
+			body:         `{"password": "test"}`,
+			response:     `{"message":"Key: 'LoginRequest.Email' Error:Field validation for 'Email' failed on the 'required' tag"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
 		},
 		{
-			name:     "Wrong email",
-			body:     `{"name": "test", "email": "test" , "password": "test"}`,
-			response: `{"message":"Key: 'LoginRequest.Email' Error:Field validation for 'Email' failed on the 'email' tag"}`,
+			name:         "Wrong email",
+			body:         `{"email": "test" , "password": "test"}`,
+			response:     `{"message":"Key: 'LoginRequest.Email' Error:Field validation for 'Email' failed on the 'email' tag"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
 		},
 		{
-			name:     "Missing password",
-			body:     `{"name": "test", "email": "test@test.com"}`,
-			response: `{"message":"Key: 'LoginRequest.Password' Error:Field validation for 'Password' failed on the 'required' tag"}`,
+			name:         "Missing password",
+			body:         `{"email": "test@test.com"}`,
+			response:     `{"message":"Key: 'LoginRequest.Password' Error:Field validation for 'Password' failed on the 'required' tag"}`,
+			statusCode:   http.StatusUnprocessableEntity,
+			mockFunction: func(authService *mock_service.MockAuth) {},
+		},
+		{
+			name:       "Success",
+			body:       `{"email": "test@test.com", "password": "test"}`,
+			response:   `{"token":"token"}`,
+			statusCode: http.StatusOK,
+			mockFunction: func(authService *mock_service.MockAuth) {
+				authService.EXPECT().Login(gomock.Any()).Return("token", nil).AnyTimes()
+			},
 		},
 	}
 
-	handler := Handler{services: &service.Services{}}
+	c := gomock.NewController(t)
+	defer c.Finish()
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			authService := mock_service.NewMockAuth(c)
+			tc.mockFunction(authService)
+			handler := Handler{services: &service.Services{Auth: authService}}
+
 			r := gin.New()
 			r.POST("/auth/login", handler.login)
 
@@ -131,33 +154,8 @@ func TestAuthLogin_RequestBodyValidaton(t *testing.T) {
 			// Make Request
 			r.ServeHTTP(w, req)
 
-			require.Equal(t, w.Code, http.StatusUnprocessableEntity)
+			require.Equal(t, w.Code, tc.statusCode)
 			require.Equal(t, tc.response, w.Body.String())
 		})
 	}
-}
-
-func TestAuthLogin_Success(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-
-	token := faker.Jwt()
-
-	authService := mock_service.NewMockAuth(c)
-	authService.EXPECT().Login(gomock.Any()).Return(token, nil).AnyTimes()
-	handler := Handler{services: &service.Services{Auth: authService}}
-
-	r := gin.New()
-	r.POST("/auth/login", handler.login)
-
-	requestBody := `{"email": "test@test.com", "password": "test"}`
-
-	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/auth/login", bytes.NewBufferString(requestBody))
-	r.ServeHTTP(w, req)
-
-	response := fmt.Sprintf(`{"token":"%s"}`, token)
-
-	require.Equal(t, w.Code, http.StatusOK)
-	require.Equal(t, response, w.Body.String())
 }
