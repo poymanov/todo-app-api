@@ -2,7 +2,6 @@ package v1
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"
@@ -16,79 +15,66 @@ import (
 	"testing"
 )
 
-func TestGetProfile_FailedToGetEmailFromContext(t *testing.T) {
+func TestGetProfile(t *testing.T) {
+	testCases := []struct {
+		name            string
+		response        string
+		statusCode      int
+		contextModifier func(c *gin.Context)
+		mockFunction    func(userService *mock_service.MockUser)
+	}{
+		{
+			name:            "Failed to get email from context",
+			response:        `{"message":"Failed to get profile"}`,
+			statusCode:      http.StatusBadRequest,
+			mockFunction:    func(userService *mock_service.MockUser) {},
+			contextModifier: func(c *gin.Context) {},
+		},
+		{
+			name:       "Not existed user",
+			response:   `{"message":"Failed to get profile"}`,
+			statusCode: http.StatusBadRequest,
+			mockFunction: func(userService *mock_service.MockUser) {
+				userService.EXPECT().FindByEmail(gomock.Any()).Return(nil, errors.New("failed"))
+			},
+			contextModifier: func(c *gin.Context) {
+				c.Set(ContextEmailKey, faker.Email())
+			},
+		},
+		{
+			name:       "Success",
+			response:   `{"id":"64f7ecf1-cf5d-4f7f-888b-f3b68b68e70b","name":"test","email":"test@test.ru"}`,
+			statusCode: http.StatusOK,
+			mockFunction: func(userService *mock_service.MockUser) {
+				userId, _ := uuid.Parse("64f7ecf1-cf5d-4f7f-888b-f3b68b68e70b")
+				user := domain.User{ID: userId, Email: "test@test.ru", Name: "test"}
+				userService.EXPECT().FindByEmail(gomock.Any()).Return(&user, nil)
+			},
+			contextModifier: func(c *gin.Context) {
+				c.Set(ContextEmailKey, faker.Email())
+			},
+		},
+	}
+
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	handler := Handler{services: &service.Services{}}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			userService := mock_service.NewMockUser(c)
+			tc.mockFunction(userService)
+			handler := Handler{services: &service.Services{User: userService}}
 
-	r := gin.New()
-	r.GET("/profile", handler.getProfile)
+			r := gin.New()
+			r.GET("/profile", tc.contextModifier, handler.getProfile)
 
-	// Create Request
-	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/profile", nil)
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/profile", nil)
 
-	// Make Request
-	r.ServeHTTP(w, req)
+			r.ServeHTTP(w, req)
 
-	require.Equal(t, w.Code, http.StatusBadRequest)
-	require.Equal(t, `{"message":"Failed to get profile"}`, w.Body.String())
-}
-
-func TestGetProfile_NotExistedUser(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-
-	userService := mock_service.NewMockUser(c)
-	userService.EXPECT().FindByEmail(gomock.Any()).Return(nil, errors.New("failed"))
-
-	handler := Handler{services: &service.Services{User: userService}}
-
-	r := gin.New()
-	r.GET("/profile", func(c *gin.Context) {
-		c.Set(ContextEmailKey, faker.Email())
-	}, handler.getProfile)
-
-	// Create Request
-	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/profile", nil)
-
-	// Make Request
-	r.ServeHTTP(w, req)
-
-	require.Equal(t, w.Code, http.StatusBadRequest)
-	require.Equal(t, `{"message":"Failed to get profile"}`, w.Body.String())
-}
-
-func TestGetProfile_Success(t *testing.T) {
-	c := gomock.NewController(t)
-	defer c.Finish()
-
-	userId, err := uuid.Parse(faker.UUIDHyphenated())
-	require.NoError(t, err)
-
-	user := domain.User{ID: userId, Email: faker.Email(), Name: faker.Name()}
-
-	userService := mock_service.NewMockUser(c)
-	userService.EXPECT().FindByEmail(gomock.Any()).Return(&user, nil)
-
-	handler := Handler{services: &service.Services{User: userService}}
-
-	r := gin.New()
-	r.GET("/profile", func(c *gin.Context) {
-		c.Set(ContextEmailKey, faker.Email())
-	}, handler.getProfile)
-
-	// Create Request
-	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/profile", nil)
-
-	// Make Request
-	r.ServeHTTP(w, req)
-
-	expectedMessage := fmt.Sprintf(`{"id":"%s","name":"%s","email":"%s"}`, user.ID.String(), user.Name, user.Email)
-
-	require.Equal(t, w.Code, http.StatusOK)
-	require.Equal(t, expectedMessage, w.Body.String())
+			require.Equal(t, w.Code, tc.statusCode)
+			require.Equal(t, tc.response, w.Body.String())
+		})
+	}
 }
