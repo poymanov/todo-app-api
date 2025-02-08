@@ -6,6 +6,8 @@
 
 Приложение для ведения списка задач (API).
 
+[![CI](https://github.com/poymanov/todo-app-api/actions/workflows/ci.yml/badge.svg)](https://github.com/poymanov/todo-app-api/actions/workflows/ci.yml)
+
 ### Функционал
 
 - Пользователи могут регистрироваться и аутентифицироваться;
